@@ -1,0 +1,85 @@
+using Microsoft.EntityFrameworkCore;
+using ProjectDataManager.BusinessLogic.EmployeeHandlers;
+using ProjectDataManager.BusinessLogic.EmployeeHandlers;
+using ProjectDataManager.BusinessLogic.ProjectHandlers;
+using ProjectDataManager.Contracts.IRepositories;
+using ProjectDataManager.Contracts.IUnitOfWork;
+using ProjectDataManager.DataAccess;
+using ProjectDataManager.DataAccess.Repositories;
+using ProjectDataManager.DataAccess.UnitOfWork;
+
+namespace ProjectDataManager;
+
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        var builder = WebApplication.CreateBuilder(args);
+
+        builder.Services.AddDbContext<ProjectDataManagerDbContext>(options =>
+        {
+            options
+                .UseSqlServer(builder.Configuration.GetConnectionString("ProjectDataManagerConnection"))
+                .UseLazyLoadingProxies();
+        }, ServiceLifetime.Scoped, ServiceLifetime.Transient);
+
+        builder.Services.AddControllersWithViews();
+
+        builder.Services.AddScoped<DbContext>(provider => provider.GetRequiredService<ProjectDataManagerDbContext>());
+        builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
+
+        builder.Services.AddTransient<IEmployeeRepository, EmployeeRepository>();
+        builder.Services.AddTransient<IProjectRepository, ProjectRepository>();
+
+        builder.Services.AddTransient<GetEmployeeHandle>();
+        builder.Services.AddTransient<CreateEmployeeHandler>();
+        builder.Services.AddTransient<UpdateEmployeeHandler>();
+        builder.Services.AddTransient<DeleteEmployeeHandler>();
+
+        builder.Services.AddTransient<GetProjectHandler>();
+        builder.Services.AddTransient<CreateProjectHandler>();
+        builder.Services.AddTransient<UpdateProjectHandler>();
+        builder.Services.AddTransient<DeleteProjectHandler>();
+
+        builder.Services.AddTransient<AddEmployeeToProjectHandler>();
+        builder.Services.AddTransient<DeleteEmployeeFromProjectHandler>();
+
+        var app = builder.Build();
+
+        using (var scope = app.Services.CreateScope())
+        {
+            try
+            {
+                var db = scope.ServiceProvider.GetRequiredService<ProjectDataManagerDbContext>();
+                db.Database.Migrate();
+            }
+            catch (Exception ex)
+            {
+                var logger = app.Services.GetRequiredService<ILogger<Program>>();
+                logger.LogError(ex, "При создании базы данных произошла ошибка.");
+
+                throw;
+            }
+        }
+
+        if (!app.Environment.IsDevelopment())
+        {
+            app.UseExceptionHandler("/Home/Error");
+            app.UseHsts();
+        }
+
+        app.UseHttpsRedirection();
+
+        app.UseDefaultFiles();
+        app.UseStaticFiles();
+
+        app.UseRouting();
+
+        app.UseAuthorization();
+
+        app.MapControllers();
+        app.MapFallbackToFile("index.html");
+
+        app.Run();
+    }
+}
