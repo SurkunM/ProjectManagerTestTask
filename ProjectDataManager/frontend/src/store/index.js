@@ -18,17 +18,16 @@ export default createStore({
             }
         ],
 
-        projectData: [
-            {
-                name: "",
-                customerCompany: "",
-                contractorCompany: "",
-                startDate: null,
-                endDate: null,
-                priority: 0,
-                manager: "1"
-            }
-        ],
+        projectData: {
+            name: "",
+            customerCompany: "",
+            contractorCompany: "",
+            startDate: null,
+            endDate: null,
+            priority: 0,
+            manager: "",
+            executers: []
+        },
 
         term: "",
 
@@ -39,37 +38,49 @@ export default createStore({
     },
 
     getters: {
+        isLoading(state) {
+            return state.isLoading;
+        },
+
         project(state) {
             return state.projectData;
         },
 
         employees(state) {
             return state.employees;
-        }
+        },
+
+        executers(state) {
+            return state.projectData.executers;
+        },
     },
 
     mutations: {
+        deleteExecuter(state, payload) {
+            state.projectData.executers = state.projectData.executers.filter(e => e.id !== payload.id);
+        },
+
+        setEmployees() {
+
+        }
     },
 
     actions: {
-        loadContacts({ commit, state }) {
+        loadEmployees({ commit, state }) {
             commit("setIsLoading", true);
 
-            return axios.get("/api/PhoneBook/GetContacts", {
+            return axios.get("/api/Employee/GetEmployee", {
                 params: {
                     term: state.term,
                     sortBy: state.sortByColumn,
                     isDescending: state.isDescending
                 }
             }).then(response => {
-                commit("setContacts", response.data.contacts);
-                commit("setContactsCount", response.data.totalCount);
-
-                commit("setSelectedCheckbox");
+                commit("setEmployees", response.data.contacts);
             }).finally(() => {
                 commit("setIsLoading", false);
             })
-        },
+        }
     },
     modules: {
     }

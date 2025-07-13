@@ -2,54 +2,113 @@
     <div class="container mt-5">
         <div class="card">
             <div class="card-header">
-                <h3>Step 4: Team Members</h3>
+                <h3>Step 4: Executers</h3>
             </div>
             <div class="card-body">
                 <div>
                     <div class="mb-3">
-                        <label for="projectName" class="form-label fs-5">Employee</label>
+                        <label for="executersSearch" class="form-label fs-5">
+                            Employee
+                            <span v-if="isLoading" class="text-muted">Searching...</span>
+                        </label>
                         <input type="text"
-                               class="form-control"
-                               id="projectName"
-                               v-model="project.name"
-                               autocomplete="off">
-                    </div>
+                               class="form-control mb-2"
+                               placeholder="search..."
+                               v-model="trim"
+                               id="executersSearch"
+                               @input="debouncedSearch">
 
-                    <div class="d-flex justify-content-between  mt-4">
-                        <button class="btn btn-secondary px-4" @click="prevStep">
-                            Back
-                        </button>
-                        <button class="btn btn-primary px-4" @click="nextStep">
-                            Next
-                        </button>
+                        <select id="executerSelect"
+                                class="form-select"
+                                @change="addSelectedExecuter($event.target.value)">
+                            <option disabled selected value="">Choose an executer</option>
+                            <option v-for="employee in employees"
+                                    :key="employee.id"
+                                    :value="employee.id">
+                                {{ employee.firstName }} {{ employee.lastName }} {{ employee.middleName }}
+                            </option>
+                        </select>
+
+                        <label v-if="executers.length > 0" class="form-label fs-5 mt-2">Selected executers</label>
+                        <ul class="list-group">
+                            <li class="list-group-item d-flex justify-content-between "
+                                v-for="executer in executers"
+                                :key="executer.id">
+                                {{ executer.firstName }} {{ executer.lastName }} {{ executer.middleName }}
+                                <button class="btn btn-danger btn-sm ms-auto"
+                                        @click="deleteSelectedExecuter(executer.id)">
+                                    Delete
+                                </button>
+                            </li>
+                        </ul>
                     </div>
                 </div>
+
+                <div class="d-flex justify-content-between  mt-4">
+                    <button class="btn btn-secondary px-4" @click="prevStep">
+                        Back
+                    </button>
+                    <button class="btn btn-primary px-4" @click="nextStep">
+                        Next
+                    </button>
+                </div>
+
             </div>
         </div>
     </div>
 </template>
-<script>export default {
+<script>
+    import debounce from "lodash.debounce";
+
+    export default {
         data() {
             return {
-                project: {
-                    name: '',
-                    name2: "",
-                    startDate: '',
-                    endDate: '',
-                    priority: '2'
-                },
-                steps: [
-                    { title: 'Основная информация', completed: false },
-                    // Добавьте другие шаги здесь
-                    { title: 'Завершение', completed: false }
-                ]
+                trim: "",
+                debounceTimeout: null,
+                selectedExecuters: [],
+            };
+        },
+
+        created() {
+            //this.$store.dispatch("loadInitialEmployees");
+        },
+
+        computed: {
+            employees() {
+                return this.$store.getters.employees;
+            },
+
+            executers() {
+                return this.$store.getters.executers;
+            },
+
+            isLoading() {
+                return this.$store.getters.isLoading;
             }
         },
 
         methods: {
+            addSelectedExecuter(valueId) {
+                const id = parseInt(valueId);
+
+                if (this.executers.some(e => e.id === id)) {
+                    return;
+                }
+
+                let employee = this.employees.find(emp => emp.id === id);
+
+                if (employee) {
+                    this.executers.push(employee);
+                }
+            },
+
+            deleteSelectedExecuter(id) {
+                this.$store.commit("deleteExecuter", { id });                
+            },
+
             nextStep() {
-                if (!this.project.name.trim()) {
-                    alert('Пожалуйста, введите название проекта');
+                if (this.executers.length === 0) {
+                    alert("Please identify the project executers.");
                     return;
                 }
 
@@ -59,5 +118,15 @@
             prevStep() {
                 this.$router.push("/manager");
             },
+
+            debouncedSearch: debounce(function () {
+                //this.loadEmployees(this.searchQuery);
+
+                this.$store.dispatch("loadContacts")
+                    .catch(() => {
+                        alert("Error");
+                    });
+            }, 300),
         }
-    }</script>
+    }
+</script>

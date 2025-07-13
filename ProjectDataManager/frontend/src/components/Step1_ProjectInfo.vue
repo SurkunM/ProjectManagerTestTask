@@ -56,19 +56,16 @@
             isValidFields() {
                 if (!this.project.name) {
                     alert("Please enter the project name.");
-
                     return false;
                 }
 
                 if (!this.project.startDate || !this.project.endDate) {
                     alert("Please specify the start and end dates.");
-
                     return false;
                 }
 
                 if (new Date(this.project.startDate) > new Date(this.project.endDate)) {
                     alert("The start date cannot be later than the end date.");
-
                     return false;
                 }
 

@@ -6,18 +6,28 @@
             </div>
             <div class="card-body">
                 <div>
+
                     <div class="mb-3">
-                        <label for="manager" class="form-label fs-5">Select Project Manager</label>
-                        <v-select v-model="selectedManager"
-                                  :options="employees"
-                                  :filterable="false"
-                                  @search="onSearch"
-                                  label="name"
-                                  placeholder="Type to search...">
-                            <template #no-options>
-                                Type to search employees...
-                            </template>
-                        </v-select>
+                        <label for="manager" class="form-label fs-5">
+                            Manager
+                            <span v-if="isLoading" class="text-muted">Searching...</span>
+                        </label>
+                        <input type="text"
+                               class="form-control mb-2"
+                               placeholder="search..."
+                               v-model="trim"
+                               @input="debouncedSearch">
+
+                        <select class="form-select"
+                                v-model="project.manager">
+                            <option disabled selected value="">Choose an manager</option>
+
+                            <option v-for="employee in employees"
+                                    :key="employee.id"
+                                    :value="employee.id">
+                                {{ employee.firstName }} {{ employee.lasName }} {{ employee.middleName }}
+                            </option>
+                        </select>
                     </div>
 
                     <div class="d-flex justify-content-between  mt-4">
@@ -34,16 +44,14 @@
     </div>
 </template>
 <script>
-    import vSelect from "vue-select";
-    import "vue-select/dist/vue-select.css";
+    import debounce from "lodash.debounce";
 
     export default {
-        components: { vSelect },
         data() {
             return {
-                selectedManager: null
+                trim: "",
+                debounceTimeout: null,
             };
-
         },
 
         computed: {
@@ -53,27 +61,17 @@
 
             employees() {
                 return this.$store.getters.employees;
+            },
+
+            isLoading() {
+                return this.$store.getters.isLoading;
             }
         },
 
         methods: {
-            async onSearch(query, loading) {
-                if (query.length < 2) return;
-                loading(true);
-                try {
-                    const response = await fetch(`/api/employees?search=${query}`);
-                    this.employees = await response.json();
-                } catch (error) {
-                    console.error("Search failed:", error);
-                } finally {
-                    loading(false);
-                }
-            },
-
             nextStep() {
                 if (!this.project.manager) {
-                    alert("Please enter the project manager.");
-
+                    alert("Please identify the project manager.");
                     return;
                 }
 
@@ -83,6 +81,15 @@
             prevStep() {
                 this.$router.push("/companies");
             },
+
+            debouncedSearch: debounce(function () {
+                //this.loadEmployees(this.searchQuery);
+
+                this.$store.dispatch("loadContacts")
+                    .catch(() => {
+                        alert("Error! Failed to upload");
+                    });
+            }, 300),
         }
     }
 </script>

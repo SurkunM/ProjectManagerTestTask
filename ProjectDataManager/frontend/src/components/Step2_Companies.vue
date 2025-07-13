@@ -48,13 +48,11 @@
             isValidFields() {
                 if (!this.project.customerCompany) {
                     alert("Please enter the project customer.");
-
                     return false;
                 }
 
                 if (!this.project.contractorCompany) {
                     alert("Please enter the project contractor.");
-
                     return false;
                 }
 
