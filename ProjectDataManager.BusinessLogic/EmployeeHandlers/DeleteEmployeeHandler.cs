@@ -9,15 +9,37 @@ public class DeleteEmployeeHandler
 
     public DeleteEmployeeHandler(IUnitOfWork unitOfWork)
     {
-        _unitOfWork = unitOfWork;
+        _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
     }
 
-    public async Task<bool> HandleAsync()
+    public async Task<bool> HandleAsync(int id)
     {
-        var repository = _unitOfWork.GetRepository<IProjectRepository>();
+        var employeesRepository = _unitOfWork.GetRepository<IEmployeeRepository>();
 
-        await repository.FindProjectByIdAsync(2);
+        try
+        {
+            _unitOfWork.BeginTransaction();
 
-        return true;
+            var employee = await employeesRepository.FindEmployeeByIdAsync(id);
+
+            if (employee is null)
+            {
+                _unitOfWork.RollbackTransaction();
+
+                return false;
+            }
+
+            employeesRepository.Delete(employee);
+
+            await _unitOfWork.SaveAsync();
+
+            return true;
+        }
+        catch (Exception)
+        {
+            _unitOfWork.RollbackTransaction();
+
+            throw;
+        }
     }
 }

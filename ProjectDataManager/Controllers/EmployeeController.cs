@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ProjectDataManager.BusinessLogic.EmployeeHandlers;
-using ProjectDataManager.Contracts.Dto;
+using ProjectDataManager.Contracts.Dto.EmployeeDto;
 
 namespace ProjectDataManager.Controllers;
 
@@ -31,98 +31,98 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<EmployeeDto>> GetEmployee([FromQuery] EmployeeDto queryParameters)
+    public async Task<ActionResult<List<EmployeeResponseDto>>> GetEmployees(string term)
     {
-        if (!ModelState.IsValid)
-        {
-            _logger.LogError("Ошибка! При запросе на получение сотрудников переданы не корректные параметры страницы. ");
-
-            return BadRequest(ModelState);
-        }
-
         try
         {
-            var contacts = await _getEmployeeHandler.HandleAsync();
+            var employee = await _getEmployeeHandler.HandleAsync(term);
 
-            return Ok(contacts);
+            return Ok(employee);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Ошибка! Запрос на получение сотрудников не выполнен.");
+            _logger.LogError(ex, "Failed to retrieve employee list.");
 
-            return StatusCode(StatusCodes.Status500InternalServerError, "Ошибка сервера.");
+            return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
+        }
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<List<EmployeeForSelectDto>>> GetEmployeesForSelect(string term)
+    {
+        try
+        {
+            var employee = await _getEmployeeHandler.GetForSelectHandleAsync(term);
+
+            return Ok(employee);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to retrieve employee list.");
+
+            return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
         }
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateEmployee(EmployeeDto employeeDto)
+    public async Task<IActionResult> CreateEmployee(EmployeeCreateUpdateDto employeeDto)
     {
         if (employeeDto is null)
         {
-            _logger.LogError("Ошибка! Объект employeeDto пуст.");
+            _logger.LogError("Employee creation failed: Request payload is null.");
 
-            return BadRequest("Объект \"Новый сотрудник\" пуст.");
+            return BadRequest("Employee data is required.");
         }
 
         if (!ModelState.IsValid)
         {
-            _logger.LogError("Ошибка! Переданы не корректные данные для создания сотрудника. {EmployeeDto}", employeeDto);
+            _logger.LogError("Invalid employee data provided. Validation errors: {ValidationErrors}, Payload: {EmployeeDto}", ModelState, employeeDto);
 
             return UnprocessableEntity(ModelState);
         }
 
         try
         {
-            var isCreated = await _createEmployeeHandler.HandleAsync();
+            await _createEmployeeHandler.HandleAsync(employeeDto);
 
-            if (!isCreated)
-            {
-                return BadRequest("");
-            }
-
-            return NoContent();
+            return Created();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Ошибка! Сотрудник не создан.");
+            _logger.LogError(ex, "Failed to create employee. Payload: {EmployeeDto}.", employeeDto);
 
-            return StatusCode(StatusCodes.Status500InternalServerError, "Ошибка сервера.");
+            return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error.");
         }
     }
 
-    [HttpPost]
-    public async Task<IActionResult> UpdateEmployee(EmployeeDto employeeDto)
+    [HttpPut]
+    public async Task<IActionResult> UpdateEmployee(EmployeeCreateUpdateDto requestDto)
     {
-        if (employeeDto is null)
+        if (requestDto is null)
         {
-            _logger.LogError("Ошибка! Объект EmployeeDto пуст.");
+            _logger.LogError("Update failed: Employee data payload is null.");
 
-            return BadRequest("Объект EmployeeDto пуст.");
+            return BadRequest("Employee data is required.");
         }
 
         if (!ModelState.IsValid)
         {
-            _logger.LogError("Ошибка! Не корректно заполнены поля для изменения сотрудника. {EmployeeDto}", employeeDto);
+            _logger.LogError("Invalid employee update data. Validation errors: {ValidationErrors}, Payload: {EmployeeDto}", ModelState, requestDto);
 
             return UnprocessableEntity(ModelState);
         }
 
         try
         {
-            var isUpdated = await _updateEmployeeHandler.HandleAsync();
-
-            if (!isUpdated)
-            {
-                return BadRequest("");
-            }
+            await _updateEmployeeHandler.HandleAsync(requestDto);
 
             return NoContent();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Ошибка! Сотрудник не изменен.");
+            _logger.LogError(ex, "Failed to update employee (ID: {EmployeeId}).", requestDto.Id);
 
-            return StatusCode(StatusCodes.Status500InternalServerError, "Ошибка сервера.");
+            return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error.");
         }
     }
 
@@ -131,29 +131,29 @@ public class EmployeeController : ControllerBase
     {
         if (id < 0)
         {
-            _logger.LogError("Передано значение id меньше нуля. id={id}", id);
+            _logger.LogError("Invalid employee ID provided for deletion: {EmployeeId}", id);
 
-            return BadRequest("Передано некорректное значение.");
+            return BadRequest("Valid employee ID must be provided.");
         }
 
         try
         {
-            var isDeleted = await _deleteEmployeeHandler.HandleAsync();
+            var isDeleted = await _deleteEmployeeHandler.HandleAsync(id);
 
             if (!isDeleted)
             {
-                _logger.LogError("Ошибка! Сотрудник для удаления не найден. id={id}", id);
+                _logger.LogError("Employee not found for deletion (ID: {EmployeeId})", id);
 
-                return BadRequest("Сотрудник для удаления не найден.");
+                return NotFound("Employee not found or already deleted");
             }
 
             return NoContent();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Ошибка! Удаление сотрудника не выполнено. id={id}", id);
+            _logger.LogError(ex, "Failed to delete employee (ID: {EmployeeId})", id);
 
-            return StatusCode(StatusCodes.Status500InternalServerError, "Ошибка сервера.");
+            return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error.");
         }
     }
 }

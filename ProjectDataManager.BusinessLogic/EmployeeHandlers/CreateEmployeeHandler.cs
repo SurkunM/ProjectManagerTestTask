@@ -1,5 +1,7 @@
-﻿using ProjectDataManager.Contracts.IRepositories;
+﻿using ProjectDataManager.Contracts.Dto.EmployeeDto;
+using ProjectDataManager.Contracts.IRepositories;
 using ProjectDataManager.Contracts.IUnitOfWork;
+using ProjectDataManager.Contracts.MappingExtensions;
 
 namespace ProjectDataManager.BusinessLogic.EmployeeHandlers;
 
@@ -9,15 +11,15 @@ public class CreateEmployeeHandler
 
     public CreateEmployeeHandler(IUnitOfWork unitOfWork)
     {
-        _unitOfWork = unitOfWork;
+        _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
     }
 
-    public async Task<bool> HandleAsync()
+    public async Task HandleAsync(EmployeeCreateUpdateDto requestDto)
     {
-        var repository = _unitOfWork.GetRepository<IProjectRepository>();
+        var employeeRepository = _unitOfWork.GetRepository<IEmployeeRepository>();
 
-        await repository.FindProjectByIdAsync(2);
+        await employeeRepository.CreateAsync(requestDto.ToModel());
 
-        return true;
+        await _unitOfWork.SaveAsync();
     }
 }

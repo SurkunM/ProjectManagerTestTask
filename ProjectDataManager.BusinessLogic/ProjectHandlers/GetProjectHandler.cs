@@ -1,4 +1,6 @@
-﻿using ProjectDataManager.Contracts.IRepositories;
+﻿using ProjectDataManager.Contracts.Dto.ProjectDto;
+using ProjectDataManager.Contracts.Dto.QueryParameters;
+using ProjectDataManager.Contracts.IRepositories;
 using ProjectDataManager.Contracts.IUnitOfWork;
 
 namespace ProjectDataManager.BusinessLogic.ProjectHandlers;
@@ -12,12 +14,10 @@ public class GetProjectHandler
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<bool> HandleAsync()
+    public Task<List<ProjectResponseDto>> HandleAsync(GetProjectsQueryParameters queryParameters)
     {
         var repository = _unitOfWork.GetRepository<IProjectRepository>();
 
-        await repository.FindProjectByIdAsync(2);
-
-        return true;
+        return repository.GetProjectsAsync(queryParameters);
     }
 }

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ProjectDataManager.BusinessLogic.ProjectHandlers;
-using ProjectDataManager.Contracts;
+using ProjectDataManager.Contracts.Dto.ProjectDto;
+using ProjectDataManager.Contracts.Dto.QueryParameters;
 
 namespace ProjectDataManager.Controllers;
 
@@ -40,98 +41,88 @@ public class ProjectController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<ProjectDto>> GetProject([FromQuery] ProjectDto queryParameters)
+    public async Task<ActionResult<ProjectCreateUpdateDto>> GetProject([FromQuery] GetProjectsQueryParameters queryParameters)
     {
         if (!ModelState.IsValid)
         {
-            _logger.LogError("Ошибка! При запросе на получение проекта переданы не корректные параметры страницы. ");
+            _logger.LogError("Invalid parameters provided for projects list request. Validation errors: {ValidationErrors}", ModelState);
 
             return BadRequest(ModelState);
         }
 
         try
         {
-            var contacts = await _getProjectHandler.HandleAsync();
+            var projects = await _getProjectHandler.HandleAsync(queryParameters);
 
-            return Ok(contacts);
+            return Ok(projects);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Ошибка! Запрос на получение проектов не выполнен.");
+            _logger.LogError(ex, "Failed to retrieve project list.");
 
-            return StatusCode(StatusCodes.Status500InternalServerError, "Ошибка сервера.");
+            return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error.");
         }
     }
 
     [HttpPost]
-    public async Task<IActionResult> CreateProject(ProjectDto projectDto)
+    public async Task<IActionResult> CreateProject(ProjectCreateUpdateDto projectDto)
     {
         if (projectDto is null)
         {
-            _logger.LogError("Ошибка! Объект ProjectDto пуст.");
+            _logger.LogError("Project creation failed: Request payload is null.");
 
-            return BadRequest("Объект \"Новый проект\" пуст.");
+            return BadRequest("Project data is required.");
         }
 
         if (!ModelState.IsValid)
         {
-            _logger.LogError("Ошибка! Переданы не корректные данные для создания проекта. {ProjectDto}", projectDto);
+            _logger.LogError("Invalid project data provided. Validation errors: {ValidationErrors}, Payload: {ProjectDto}", ModelState, projectDto);
 
             return UnprocessableEntity(ModelState);
         }
 
         try
         {
-            var isCreated = await _createProjectHandler.HandleAsync();
+            await _createProjectHandler.HandleAsync(projectDto);
 
-            if (!isCreated)
-            {
-                return BadRequest("");
-            }
-
-            return NoContent();
+            return Created();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Ошибка! Проект не создан.");
+            _logger.LogError(ex, "Failed to create project. Payload: {ProjectDto}.", projectDto);
 
-            return StatusCode(StatusCodes.Status500InternalServerError, "Ошибка сервера.");
+            return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error.");
         }
     }
 
     [HttpPost]
-    public async Task<IActionResult> UpdateProject(ProjectDto projectDto)
+    public async Task<IActionResult> UpdateProject(ProjectCreateUpdateDto projectDto)
     {
         if (projectDto is null)
         {
-            _logger.LogError("Ошибка! Объект ProjectDto пуст.");
+            _logger.LogError("Update failed: Project data payload is null.");
 
-            return BadRequest("Объект ProjectDto пуст.");
+            return BadRequest("Project data is required.");
         }
 
         if (!ModelState.IsValid)
         {
-            _logger.LogError("Ошибка! Не корректно заполнены поля для изменения проекта. {ProjectDto}", projectDto);
+            _logger.LogError("Invalid project update data. Validation errors: {ValidationErrors}, Payload: {ProjectId}", ModelState, projectDto);
 
             return UnprocessableEntity(ModelState);
         }
 
         try
         {
-            var isUpdated = await _updateProjectHandler.HandleAsync();
-
-            if (!isUpdated)
-            {
-                return BadRequest("");
-            }
+            await _updateProjectHandler.HandleAsync(projectDto);
 
             return NoContent();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Ошибка! Проект не изменен.");
+            _logger.LogError(ex, "Failed to update project (ID: {ProjectId}).", projectDto.Id);
 
-            return StatusCode(StatusCodes.Status500InternalServerError, "Ошибка сервера.");
+            return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error.");
         }
     }
 
@@ -140,29 +131,29 @@ public class ProjectController : ControllerBase
     {
         if (id < 0)
         {
-            _logger.LogError("Передано значение id меньше нуля. id={id}", id);
+            _logger.LogError("Invalid project ID provided for deletion: {ProjectId}", id);
 
-            return BadRequest("Передано некорректное значение.");
+            return BadRequest("Valid project ID must be provided.");
         }
 
         try
         {
-            var isDeleted = await _deleteProjectHandler.HandleAsync();
+            var isDeleted = await _deleteProjectHandler.HandleAsync(id);
 
             if (!isDeleted)
             {
-                _logger.LogError("Ошибка! Проект для удаления не найден. id={id}", id);
+                _logger.LogError("Project not found for deletion (ID: {ProjectId})", id);
 
-                return BadRequest("Проект для удаления не найден.");
+                return NotFound("Project not found or already deleted");
             }
 
             return NoContent();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Ошибка! Удаление проекта не выполнено. id={id}", id);
+            _logger.LogError(ex, "Failed to delete project (ID: {ProjectId})", id);
 
-            return StatusCode(StatusCodes.Status500InternalServerError, "Ошибка сервера.");
+            return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error.");
         }
     }
 }

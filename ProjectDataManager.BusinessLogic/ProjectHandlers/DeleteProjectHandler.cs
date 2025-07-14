@@ -12,12 +12,34 @@ public class DeleteProjectHandler
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<bool> HandleAsync()
+    public async Task<bool> HandleAsync(int id)
     {
-        var repository = _unitOfWork.GetRepository<IProjectRepository>();
+        var projectsRepository = _unitOfWork.GetRepository<IProjectRepository>();
 
-        await repository.FindProjectByIdAsync(2);
+        try
+        {
+            _unitOfWork.BeginTransaction();
 
-        return true;
+            var project = await projectsRepository.FindProjectByIdAsync(id);
+
+            if (project is null)
+            {
+                _unitOfWork.RollbackTransaction();
+
+                return false;
+            }
+
+            projectsRepository.Delete(project);
+
+            await _unitOfWork.SaveAsync();
+
+            return true;
+        }
+        catch (Exception)
+        {
+            _unitOfWork.RollbackTransaction();
+
+            throw;
+        }
     }
 }

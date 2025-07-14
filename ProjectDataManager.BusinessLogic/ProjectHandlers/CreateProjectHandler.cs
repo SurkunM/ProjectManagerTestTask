@@ -1,5 +1,7 @@
-﻿using ProjectDataManager.Contracts.IRepositories;
+﻿using ProjectDataManager.Contracts.Dto.ProjectDto;
+using ProjectDataManager.Contracts.IRepositories;
 using ProjectDataManager.Contracts.IUnitOfWork;
+using ProjectDataManager.Contracts.MappingExtensions;
 
 namespace ProjectDataManager.BusinessLogic.ProjectHandlers;
 
@@ -12,12 +14,12 @@ public class CreateProjectHandler
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<bool> HandleAsync()
+    public async Task HandleAsync(ProjectCreateUpdateDto projectDto)
     {
-        var repository = _unitOfWork.GetRepository<IProjectRepository>();
+        var projectsRepository = _unitOfWork.GetRepository<IProjectRepository>();
 
-        await repository.FindProjectByIdAsync(2);
+        await projectsRepository.CreateAsync(projectDto.ToModel());
 
-        return true;
+        await _unitOfWork.SaveAsync();
     }
 }
