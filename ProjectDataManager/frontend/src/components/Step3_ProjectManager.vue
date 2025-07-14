@@ -54,6 +54,13 @@
             };
         },
 
+        created() {
+            this.$store.dispatch("loadEmployees")
+                .catch(() => {
+                    alert("Error! Failed to upload");
+                });
+        },
+
         computed: {
             project() {
                 return this.$store.getters.project;
@@ -85,7 +92,7 @@
             debouncedSearch: debounce(function () {
                 //this.loadEmployees(this.searchQuery);
 
-                this.$store.dispatch("loadContacts")
+                this.$store.dispatch("loadEmployees")
                     .catch(() => {
                         alert("Error! Failed to upload");
                     });

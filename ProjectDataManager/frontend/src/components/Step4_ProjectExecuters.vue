@@ -70,7 +70,10 @@
         },
 
         created() {
-            //this.$store.dispatch("loadInitialEmployees");
+            this.$store.dispatch("loadEmployees")
+                .catch(() => {
+                    alert("Error! Failed to upload");
+                });
         },
 
         computed: {
@@ -103,7 +106,7 @@
             },
 
             deleteSelectedExecuter(id) {
-                this.$store.commit("deleteExecuter", { id });                
+                this.$store.commit("deleteExecuter", { id });
             },
 
             nextStep() {
@@ -122,9 +125,9 @@
             debouncedSearch: debounce(function () {
                 //this.loadEmployees(this.searchQuery);
 
-                this.$store.dispatch("loadContacts")
+                this.$store.dispatch("loadEmployees")
                     .catch(() => {
-                        alert("Error");
+                        alert("Error! Failed to upload");
                     });
             }, 300),
         }

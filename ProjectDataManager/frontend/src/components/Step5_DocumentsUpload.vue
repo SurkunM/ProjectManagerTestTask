@@ -88,10 +88,12 @@
             formatFileSize(sizeInBytes) {
                 const units = ["байт", "КБ", "МБ"];
                 let unitIndex = 0;
+
                 while (sizeInBytes >= 1024 && unitIndex < units.length - 1) {
                     sizeInBytes /= 1024;
                     unitIndex++;
                 }
+
                 return `${Math.round(sizeInBytes * 100) / 100} ${units[unitIndex]}`;
             },
 

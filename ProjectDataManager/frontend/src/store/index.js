@@ -60,8 +60,8 @@ export default createStore({
             state.projectData.executers = state.projectData.executers.filter(e => e.id !== payload.id);
         },
 
-        setEmployees() {
-
+        setEmployees(state, employees) {
+            state.employees = employees;
         }
     },
 
@@ -69,19 +69,17 @@ export default createStore({
         loadEmployees({ commit, state }) {
             commit("setIsLoading", true);
 
-            return axios.get("/api/Employee/GetEmployee", {
+            return axios.get("/api/Employee/GetEmployees", {
                 params: {
                     term: state.term,
                     sortBy: state.sortByColumn,
                     isDescending: state.isDescending
                 }
             }).then(response => {
-                commit("setEmployees", response.data.contacts);
+                commit("setEmployees", response.data.employees);
             }).finally(() => {
                 commit("setIsLoading", false);
             })
         }
-    },
-    modules: {
     }
 })
