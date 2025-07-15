@@ -37,9 +37,9 @@ namespace ProjectDataManager.DataAccess.Migrations
                     CustomerCompany = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     ContractorCompany = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Priority = table.Column<int>(type: "int", nullable: false),
-                    ProjectManagerId = table.Column<int>(type: "int", nullable: true)
+                    ProjectManagerId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -49,7 +49,7 @@ namespace ProjectDataManager.DataAccess.Migrations
                         column: x => x.ProjectManagerId,
                         principalTable: "Employees",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.SetNull);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(

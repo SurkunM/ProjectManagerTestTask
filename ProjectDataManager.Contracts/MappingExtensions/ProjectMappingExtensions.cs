@@ -5,7 +5,7 @@ namespace ProjectDataManager.Contracts.MappingExtensions;
 
 public static class ProjectMappingExtensions
 {
-    public static Project ToModel(this ProjectCreateUpdateDto projectDto)
+    public static Project ToModel(this ProjectCreateUpdateDto projectDto, Employee manager)
     {
         return new Project
         {
@@ -13,7 +13,11 @@ public static class ProjectMappingExtensions
             Name = projectDto.Name,
             CustomerCompany = projectDto.CustomerCompany,
             ContractorCompany = projectDto.ContractorCompany,
-            ProjectManagerId = projectDto.ProjectManagerId
+            StartDate = projectDto.StartDate,
+            EndDate = projectDto.EndDate,
+            Priority = projectDto.Priority,
+            ProjectManagerId = projectDto.ProjectManagerId,
+            ProjectManager = manager
         };
     }
 

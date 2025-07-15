@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using ProjectDataManager.BusinessLogic.EmployeeHandlers;
-using ProjectDataManager.BusinessLogic.EmployeeHandlers;
 using ProjectDataManager.BusinessLogic.ProjectHandlers;
 using ProjectDataManager.Contracts.IRepositories;
 using ProjectDataManager.Contracts.IUnitOfWork;

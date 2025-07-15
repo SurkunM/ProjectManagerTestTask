@@ -1,4 +1,6 @@
-﻿using ProjectDataManager.Contracts.IRepositories;
+﻿using Microsoft.Extensions.Logging;
+using ProjectDataManager.BusinessLogic.ProjectHandlers;
+using ProjectDataManager.Contracts.IRepositories;
 using ProjectDataManager.Contracts.IUnitOfWork;
 
 namespace ProjectDataManager.BusinessLogic.EmployeeHandlers;
@@ -7,9 +9,13 @@ public class DeleteEmployeeHandler
 {
     private readonly IUnitOfWork _unitOfWork;
 
-    public DeleteEmployeeHandler(IUnitOfWork unitOfWork)
+    private readonly ILogger<DeleteProjectHandler> _logger;
+
+
+    public DeleteEmployeeHandler(IUnitOfWork unitOfWork, ILogger<DeleteProjectHandler> logger)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     public async Task<bool> HandleAsync(int id)
@@ -35,8 +41,10 @@ public class DeleteEmployeeHandler
 
             return true;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "Failed to delete employee {EmployeeId}. Transaction rolled back", id);
+
             _unitOfWork.RollbackTransaction();
 
             throw;

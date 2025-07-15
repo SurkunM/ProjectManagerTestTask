@@ -44,20 +44,18 @@ public class ProjectDataManagerDbContext : DbContext
             b.HasOne(p => p.ProjectManager)
                 .WithMany(e => e.ManagedProjects)
                 .HasForeignKey(p => p.ProjectManagerId)
-                .OnDelete(DeleteBehavior.SetNull);
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<ProjectEmployee>(b =>
         {
             b.HasOne(pe => pe.Employee)
                 .WithMany(e => e.ProjectEmployees)
-                .HasForeignKey(pe => pe.EmployeeId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .HasForeignKey(pe => pe.EmployeeId);
 
             b.HasOne(pe => pe.Project)
                 .WithMany(p => p.ProjectEmployees)
-                .HasForeignKey(pe => pe.ProjectId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .HasForeignKey(pe => pe.ProjectId);
         });
     }
 }

@@ -1,42 +1,38 @@
 ﻿using Microsoft.Extensions.Logging;
-using ProjectDataManager.Contracts.Dto.ProjectDto;
 using ProjectDataManager.Contracts.IRepositories;
 using ProjectDataManager.Contracts.IUnitOfWork;
-using ProjectDataManager.Contracts.MappingExtensions;
 
 namespace ProjectDataManager.BusinessLogic.ProjectHandlers;
 
-public class CreateProjectHandler
+public class RemoveEmployeeFromProjectHandler
 {
     private readonly IUnitOfWork _unitOfWork;
 
-    private readonly ILogger<CreateProjectHandler> _logger;
-
-    public CreateProjectHandler(IUnitOfWork unitOfWork, ILogger<CreateProjectHandler> logger)
+    private readonly ILogger<RemoveEmployeeFromProjectHandler> _logger;
+    public RemoveEmployeeFromProjectHandler(IUnitOfWork unitOfWork, ILogger<RemoveEmployeeFromProjectHandler> logger)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public async Task<bool> HandleAsync(ProjectCreateUpdateDto projectDto)
+    public async Task<bool> HandleAsync(int projectId, int employeeId)
     {
         var projectsRepository = _unitOfWork.GetRepository<IProjectsRepository>();
-        var employeeRepository = _unitOfWork.GetRepository<IEmployeesRepository>();
 
         try
         {
             _unitOfWork.BeginTransaction();
 
-            var manager = await employeeRepository.FindEmployeeByIdAsync(projectDto.Id);
+            var projectEmployee = await projectsRepository.FindProjectEmployeeByIdAsync(projectId, employeeId);
 
-            if (manager is null)
+            if (projectEmployee == null)
             {
                 _unitOfWork.RollbackTransaction();
 
                 return false;
             }
 
-            await projectsRepository.CreateAsync(projectDto.ToModel(manager));
+            projectsRepository.RemoveEmployeeFromProject(projectEmployee);
 
             await _unitOfWork.SaveAsync();
 
@@ -44,7 +40,7 @@ public class CreateProjectHandler
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to create project. Transaction rolled back");
+            _logger.LogError(ex, "Failed to remove employee {EmployeeId} from project {ProjectId}. Transaction rolled back", employeeId, projectId);
 
             _unitOfWork.RollbackTransaction();
 

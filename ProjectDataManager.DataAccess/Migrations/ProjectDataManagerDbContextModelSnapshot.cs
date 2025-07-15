@@ -75,7 +75,7 @@ namespace ProjectDataManager.DataAccess.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<DateTime?>("EndDate")
+                    b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
@@ -86,7 +86,7 @@ namespace ProjectDataManager.DataAccess.Migrations
                     b.Property<int>("Priority")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ProjectManagerId")
+                    b.Property<int>("ProjectManagerId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("StartDate")
@@ -127,7 +127,8 @@ namespace ProjectDataManager.DataAccess.Migrations
                     b.HasOne("ProjectDataManager.Model.Employee", "ProjectManager")
                         .WithMany("ManagedProjects")
                         .HasForeignKey("ProjectManagerId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("ProjectManager");
                 });

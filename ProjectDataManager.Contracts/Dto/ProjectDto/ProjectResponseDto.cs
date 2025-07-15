@@ -12,9 +12,9 @@ public class ProjectResponseDto
 
     public DateTime StartDate { get; set; }
 
-    public DateTime? EndDate { get; set; }
+    public DateTime EndDate { get; set; }
 
     public int Priority { get; set; }
 
-    public string? ProjectManagerFullName { get; set; }
+    public required string ProjectManagerFullName { get; set; }
 }

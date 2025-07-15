@@ -1,4 +1,5 @@
-﻿using ProjectDataManager.Contracts.Dto.ProjectDto;
+﻿using Microsoft.Extensions.Logging;
+using ProjectDataManager.Contracts.Dto.ProjectDto;
 using ProjectDataManager.Contracts.IRepositories;
 using ProjectDataManager.Contracts.IUnitOfWork;
 using ProjectDataManager.Contracts.MappingExtensions;
@@ -9,17 +10,45 @@ public class UpdateProjectHandler
 {
     private readonly IUnitOfWork _unitOfWork;
 
-    public UpdateProjectHandler(IUnitOfWork unitOfWork)
+    private readonly ILogger<UpdateProjectHandler> _logger;
+
+    public UpdateProjectHandler(IUnitOfWork unitOfWork, ILogger<UpdateProjectHandler> logger)
     {
-        _unitOfWork = unitOfWork;
+        _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public async Task HandleAsync(ProjectCreateUpdateDto projectDto)
+    public async Task<bool> HandleAsync(ProjectCreateUpdateDto projectDto)
     {
         var projectsRepository = _unitOfWork.GetRepository<IProjectsRepository>();
+        var employeeRepository = _unitOfWork.GetRepository<IEmployeesRepository>();
 
-        projectsRepository.Update(projectDto.ToModel());
+        try
+        {
+            _unitOfWork.BeginTransaction();
 
-        await _unitOfWork.SaveAsync();
+            var manager = await employeeRepository.FindEmployeeByIdAsync(projectDto.ProjectManagerId);
+
+            if (manager is null)
+            {
+                _unitOfWork.RollbackTransaction();
+
+                return false;
+            }
+
+            projectsRepository.Update(projectDto.ToModel(manager));
+
+            await _unitOfWork.SaveAsync();
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to create project. Transaction rolled back");
+
+            _unitOfWork.RollbackTransaction();
+
+            throw;
+        }
     }
 }

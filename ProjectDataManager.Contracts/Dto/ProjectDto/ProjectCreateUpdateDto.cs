@@ -21,10 +21,10 @@ public class ProjectCreateUpdateDto
     [Required]
     public DateTime StartDate { get; set; }
 
-    public DateTime? EndDate { get; set; }
+    public DateTime EndDate { get; set; }
 
     [Range(1, 3)]
     public int Priority { get; set; }
 
-    public int? ProjectManagerId { get; set; }
+    public int ProjectManagerId { get; set; }
 }

@@ -129,7 +129,7 @@ public class EmployeeController : ControllerBase
     [HttpDelete]
     public async Task<IActionResult> DeleteEmployee([FromBody] int id)
     {
-        if (id < 0)
+        if (id <= 0)
         {
             _logger.LogError("Invalid employee ID provided for deletion: {EmployeeId}", id);
 
@@ -138,9 +138,9 @@ public class EmployeeController : ControllerBase
 
         try
         {
-            var isDeleted = await _deleteEmployeeHandler.HandleAsync(id);
+            var success = await _deleteEmployeeHandler.HandleAsync(id);
 
-            if (!isDeleted)
+            if (!success)
             {
                 _logger.LogError("Employee not found for deletion (ID: {EmployeeId})", id);
 

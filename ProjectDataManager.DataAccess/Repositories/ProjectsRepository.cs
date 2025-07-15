@@ -14,11 +14,6 @@ public class ProjectsRepository : BaseEfRepository<Project>, IProjectsRepository
 {
     public ProjectsRepository(ProjectDataManagerDbContext dbContext, ILogger<ProjectsRepository> logger) : base(dbContext) { }
 
-    public Task<Project?> FindProjectByIdAsync(int id)
-    {
-        return DbSet.FirstOrDefaultAsync(p => p.Id == id);
-    }
-
     public async Task<List<ProjectResponseDto>> GetProjectsAsync(GetProjectsQueryParameters queryParameters)
     {
         var querySbSet = DbSet.AsNoTracking();
@@ -50,6 +45,45 @@ public class ProjectsRepository : BaseEfRepository<Project>, IProjectsRepository
                 ProjectManagerFullName = $"{p.ProjectManager.LastName} {p.ProjectManager.FirstName} {p.ProjectManager.MiddleName ?? string.Empty}"
             })
             .ToListAsync();
+    }
+
+    public Task<bool> CheckEmployeeProjectMembershipAsync(int projectId, int employeeId)
+    {
+        return DbContext.Set<ProjectEmployee>().AnyAsync(pe => pe.ProjectId == projectId && pe.EmployeeId == employeeId);
+    }
+
+    public Task<Project?> FindProjectByIdAsync(int id)
+    {
+        return DbSet.FirstOrDefaultAsync(p => p.Id == id);
+    }
+
+    public Task<ProjectEmployee?> FindProjectEmployeeByIdAsync(int projectId, int employeeId)
+    {
+        return DbContext.ProjectEmployees
+            .FirstOrDefaultAsync(pe => pe.ProjectId == projectId && pe.EmployeeId == employeeId);
+    }
+
+    public Task AddEmployeeToProject(Project project, Employee employee)
+    {
+        var projectEmployee = new ProjectEmployee
+        {
+            ProjectId = project.Id,
+            Project = project,
+            EmployeeId = employee.Id,
+            Employee = employee
+        };
+
+        return DbContext.ProjectEmployees.AddAsync(projectEmployee).AsTask();
+    }
+
+    public void RemoveEmployeeFromProject(ProjectEmployee projectEmployee)
+    {
+        if (DbContext.Entry(projectEmployee).State == EntityState.Detached)
+        {
+            DbContext.ProjectEmployees.Attach(projectEmployee);
+        }
+
+        DbContext.ProjectEmployees.Remove(projectEmployee);
     }
 
     private static Expression<Func<Project, object>> CreateSortExpression(string propertyName)

@@ -18,16 +18,14 @@ public class ProjectController : ControllerBase
     private readonly DeleteProjectHandler _deleteProjectHandler;
 
     private readonly AddEmployeeToProjectHandler _addEmployeeToProjectHandler;
-    private readonly DeleteEmployeeFromProjectHandler _deleteEmployeeFromProjectHandler;
+    private readonly RemoveEmployeeFromProjectHandler _removeEmployeeFromProjectHandler;
 
     private readonly ILogger<ProjectController> _logger;
 
     public ProjectController(ILogger<ProjectController> logger,
-        CreateProjectHandler createProjectHandler,
-        GetProjectHandler getProjectHandler,
-        UpdateProjectHandler updateProjectHandler,
-       DeleteProjectHandler deleteProjectHandler,
-        DeleteEmployeeFromProjectHandler deleteEmployeeFromProjectHandler, AddEmployeeToProjectHandler addEmployeeToProjectHandler)
+        CreateProjectHandler createProjectHandler, GetProjectHandler getProjectHandler,
+        UpdateProjectHandler updateProjectHandler, DeleteProjectHandler deleteProjectHandler,
+        RemoveEmployeeFromProjectHandler removeEmployeeFromProjectHandler, AddEmployeeToProjectHandler addEmployeeToProjectHandler)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -36,8 +34,8 @@ public class ProjectController : ControllerBase
         _updateProjectHandler = updateProjectHandler ?? throw new ArgumentNullException(nameof(updateProjectHandler));
         _deleteProjectHandler = deleteProjectHandler ?? throw new ArgumentNullException(nameof(deleteProjectHandler));
 
-        _deleteEmployeeFromProjectHandler = deleteEmployeeFromProjectHandler ?? throw new ArgumentNullException(nameof(deleteEmployeeFromProjectHandler));
         _addEmployeeToProjectHandler = addEmployeeToProjectHandler ?? throw new ArgumentNullException(nameof(addEmployeeToProjectHandler));
+        _removeEmployeeFromProjectHandler = removeEmployeeFromProjectHandler ?? throw new ArgumentNullException(nameof(removeEmployeeFromProjectHandler));
     }
 
     [HttpGet]
@@ -83,7 +81,14 @@ public class ProjectController : ControllerBase
 
         try
         {
-            await _createProjectHandler.HandleAsync(projectDto);
+            var success = await _createProjectHandler.HandleAsync(projectDto);
+
+            if (!success)
+            {
+                _logger.LogError("Project Manager not found to create the project.(ID: {ProjectManagerId})", projectDto.ProjectManagerId);
+
+                return NotFound("Project Manager not found or already deleted");
+            }
 
             return Created();
         }
@@ -95,7 +100,7 @@ public class ProjectController : ControllerBase
         }
     }
 
-    [HttpPost]
+    [HttpPut]
     public async Task<IActionResult> UpdateProject(ProjectCreateUpdateDto projectDto)
     {
         if (projectDto is null)
@@ -114,7 +119,14 @@ public class ProjectController : ControllerBase
 
         try
         {
-            await _updateProjectHandler.HandleAsync(projectDto);
+            var success = await _updateProjectHandler.HandleAsync(projectDto);
+
+            if (!success)
+            {
+                _logger.LogError("Project Manager not found to update the project. (ID: {ProjectManagerId})", projectDto.ProjectManagerId);
+
+                return NotFound("Project Manager not found or already deleted");
+            }
 
             return NoContent();
         }
@@ -129,7 +141,7 @@ public class ProjectController : ControllerBase
     [HttpDelete]
     public async Task<IActionResult> DeleteProject([FromBody] int id)
     {
-        if (id < 0)
+        if (id <= 0)
         {
             _logger.LogError("Invalid project ID provided for deletion: {ProjectId}", id);
 
@@ -138,9 +150,9 @@ public class ProjectController : ControllerBase
 
         try
         {
-            var isDeleted = await _deleteProjectHandler.HandleAsync(id);
+            var success = await _deleteProjectHandler.HandleAsync(id);
 
-            if (!isDeleted)
+            if (!success)
             {
                 _logger.LogError("Project not found for deletion (ID: {ProjectId})", id);
 
@@ -152,6 +164,68 @@ public class ProjectController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to delete project (ID: {ProjectId})", id);
+
+            return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error.");
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> AddEmployeeToProject([FromBody] int projectId, int employeeId)
+    {
+        if (projectId <= 0 || employeeId <= 0)
+        {
+            _logger.LogWarning("Invalid IDs provided - Project: {ProjectId}, Employee: {EmployeeId}", projectId, employeeId);
+
+            return BadRequest("Project ID and Employee ID must be positive integers");
+        }
+
+        try
+        {
+            var success = await _addEmployeeToProjectHandler.HandleAsync(projectId, employeeId);
+
+            if (!success)
+            {
+                _logger.LogError("Employee {EmployeeId} already exists in project {ProjectId}", employeeId, projectId);
+
+                return Conflict("Employee with ID is already assigned to this project");
+            }
+
+            return Created();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to add employee {EmployeeId} to project {ProjectId}.", employeeId, projectId);
+
+            return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error.");
+        }
+    }
+
+    [HttpDelete]
+    public async Task<IActionResult> RemoveEmployeeFromProject([FromBody] int projectId, int employeeId)
+    {
+        if (projectId <= 0 || employeeId <= 0)
+        {
+            _logger.LogWarning("Invalid IDs provided - Project: {ProjectId}, Employee: {EmployeeId}", projectId, employeeId);
+
+            return BadRequest("Project ID and Employee ID must be positive integers");
+        }
+
+        try
+        {
+            var success = await _removeEmployeeFromProjectHandler.HandleAsync(projectId, employeeId);
+
+            if (!success)
+            {
+                _logger.LogError("ProjectEmployee not found. ProjectId: {ProjectId}, EmployeeId: {EmployeeId}", projectId, employeeId);
+
+                return NotFound("ProjectEmployee not found or already deleted");
+            }
+
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to remove employee {EmployeeId} from project {ProjectId}", employeeId, projectId);
 
             return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error.");
         }
