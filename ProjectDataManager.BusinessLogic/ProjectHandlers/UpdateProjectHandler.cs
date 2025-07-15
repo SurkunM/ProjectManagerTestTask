@@ -16,7 +16,7 @@ public class UpdateProjectHandler
 
     public async Task HandleAsync(ProjectCreateUpdateDto projectDto)
     {
-        var projectsRepository = _unitOfWork.GetRepository<IProjectRepository>();
+        var projectsRepository = _unitOfWork.GetRepository<IProjectsRepository>();
 
         projectsRepository.Update(projectDto.ToModel());
 

@@ -16,9 +16,9 @@ public class UpdateEmployeeHandler
 
     public async Task HandleAsync(EmployeeCreateUpdateDto requestDto)
     {
-        var employeeRepository = _unitOfWork.GetRepository<IEmployeeRepository>();
+        var employeesRepository = _unitOfWork.GetRepository<IEmployeesRepository>();
 
-        employeeRepository.Update(requestDto.ToModel());
+        employeesRepository.Update(requestDto.ToModel());
 
         await _unitOfWork.SaveAsync();
     }

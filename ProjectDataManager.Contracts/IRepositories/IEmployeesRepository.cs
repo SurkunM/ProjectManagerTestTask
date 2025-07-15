@@ -3,7 +3,7 @@ using ProjectDataManager.Model;
 
 namespace ProjectDataManager.Contracts.IRepositories;
 
-public interface IEmployeeRepository : IRepository<Employee>
+public interface IEmployeesRepository : IRepository<Employee>
 {
     Task<Employee?> FindEmployeeByIdAsync(int id);
 

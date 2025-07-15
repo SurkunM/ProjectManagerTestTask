@@ -16,8 +16,8 @@ public class GetProjectHandler
 
     public Task<List<ProjectResponseDto>> HandleAsync(GetProjectsQueryParameters queryParameters)
     {
-        var repository = _unitOfWork.GetRepository<IProjectRepository>();
+        var projectsRepository = _unitOfWork.GetRepository<IProjectsRepository>();
 
-        return repository.GetProjectsAsync(queryParameters);
+        return projectsRepository.GetProjectsAsync(queryParameters);
     }
 }

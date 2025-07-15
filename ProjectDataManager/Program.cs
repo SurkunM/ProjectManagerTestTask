@@ -28,8 +28,8 @@ public class Program
         builder.Services.AddScoped<DbContext>(provider => provider.GetRequiredService<ProjectDataManagerDbContext>());
         builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 
-        builder.Services.AddTransient<IEmployeeRepository, EmployeeRepository>();
-        builder.Services.AddTransient<IProjectRepository, ProjectRepository>();
+        builder.Services.AddTransient<IEmployeesRepository, EmployeesRepository>();
+        builder.Services.AddTransient<IProjectsRepository, ProjectsRepository>();
 
         builder.Services.AddTransient<GetEmployeeHandle>();
         builder.Services.AddTransient<CreateEmployeeHandler>();
@@ -42,7 +42,7 @@ public class Program
         builder.Services.AddTransient<DeleteProjectHandler>();
 
         builder.Services.AddTransient<AddEmployeeToProjectHandler>();
-        builder.Services.AddTransient<DeleteEmployeeFromProjectHandler>();
+        builder.Services.AddTransient<RemoveEmployeeFromProjectHandler>();
 
         var app = builder.Build();
 

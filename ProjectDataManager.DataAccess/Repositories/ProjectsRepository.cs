@@ -10,9 +10,9 @@ using System.Reflection;
 
 namespace ProjectDataManager.DataAccess.Repositories;
 
-public class ProjectRepository : BaseEfRepository<Project>, IProjectRepository
+public class ProjectsRepository : BaseEfRepository<Project>, IProjectsRepository
 {
-    public ProjectRepository(ProjectDataManagerDbContext dbContext, ILogger<ProjectRepository> logger) : base(dbContext) { }
+    public ProjectsRepository(ProjectDataManagerDbContext dbContext, ILogger<ProjectsRepository> logger) : base(dbContext) { }
 
     public Task<Project?> FindProjectByIdAsync(int id)
     {
@@ -46,7 +46,8 @@ public class ProjectRepository : BaseEfRepository<Project>, IProjectRepository
                 ContractorCompany = p.ContractorCompany,
                 StartDate = p.StartDate,
                 EndDate = p.EndDate,
-                Priority = p.Priority
+                Priority = p.Priority,
+                ProjectManagerFullName = $"{p.ProjectManager.LastName} {p.ProjectManager.FirstName} {p.ProjectManager.MiddleName ?? string.Empty}"
             })
             .ToListAsync();
     }

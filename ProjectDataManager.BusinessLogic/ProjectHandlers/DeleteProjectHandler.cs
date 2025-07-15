@@ -14,7 +14,7 @@ public class DeleteProjectHandler
 
     public async Task<bool> HandleAsync(int id)
     {
-        var projectsRepository = _unitOfWork.GetRepository<IProjectRepository>();
+        var projectsRepository = _unitOfWork.GetRepository<IProjectsRepository>();
 
         try
         {

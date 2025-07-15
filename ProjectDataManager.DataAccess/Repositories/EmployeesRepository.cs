@@ -6,9 +6,9 @@ using ProjectDataManager.Model;
 
 namespace ProjectDataManager.DataAccess.Repositories;
 
-public class EmployeeRepository : BaseEfRepository<Employee>, IEmployeeRepository
+public class EmployeesRepository : BaseEfRepository<Employee>, IEmployeesRepository
 {
-    public EmployeeRepository(ProjectDataManagerDbContext dbContext) : base(dbContext) { }
+    public EmployeesRepository(ProjectDataManagerDbContext dbContext) : base(dbContext) { }
 
     public Task<List<EmployeeResponseDto>> GetEmployeesAsync(string term)
     {

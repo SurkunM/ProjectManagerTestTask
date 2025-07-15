@@ -14,7 +14,7 @@ public class DeleteEmployeeHandler
 
     public async Task<bool> HandleAsync(int id)
     {
-        var employeesRepository = _unitOfWork.GetRepository<IEmployeeRepository>();
+        var employeesRepository = _unitOfWork.GetRepository<IEmployeesRepository>();
 
         try
         {

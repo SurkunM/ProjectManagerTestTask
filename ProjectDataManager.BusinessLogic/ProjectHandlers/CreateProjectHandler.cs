@@ -16,7 +16,7 @@ public class CreateProjectHandler
 
     public async Task HandleAsync(ProjectCreateUpdateDto projectDto)
     {
-        var projectsRepository = _unitOfWork.GetRepository<IProjectRepository>();
+        var projectsRepository = _unitOfWork.GetRepository<IProjectsRepository>();
 
         await projectsRepository.CreateAsync(projectDto.ToModel());
 
