@@ -7,6 +7,8 @@ public interface IEmployeesRepository : IRepository<Employee>
 {
     Task<Employee?> FindEmployeeByIdAsync(int id);
 
+    Task<List<Employee>> FindEmployeesByIdAsync(int[] ids);
+
     Task<List<EmployeeResponseDto>> GetEmployeesAsync(string term);
 
     Task<List<EmployeeForSelectDto>> GetEmployeesForSelectAsync(string term);

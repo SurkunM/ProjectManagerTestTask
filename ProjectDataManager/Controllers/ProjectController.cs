@@ -39,7 +39,7 @@ public class ProjectController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<ProjectCreateUpdateDto>> GetProject([FromQuery] GetProjectsQueryParameters queryParameters)
+    public async Task<ActionResult<ProjectCreateUpdateDto>> GetProjects([FromQuery] GetProjectsQueryParameters queryParameters)
     {
         if (!ModelState.IsValid)
         {
@@ -170,62 +170,64 @@ public class ProjectController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> AddEmployeeToProject([FromBody] int projectId, int employeeId)
+    public async Task<IActionResult> AddEmployeesToProject(ProjectRemoveAddEmployeesDto addEmployeesDto)
     {
-        if (projectId <= 0 || employeeId <= 0)
+        if (addEmployeesDto.ProjectId <= 0)
         {
-            _logger.LogWarning("Invalid IDs provided - Project: {ProjectId}, Employee: {EmployeeId}", projectId, employeeId);
+            _logger.LogWarning("Invalid ID provided - Project: {ProjectId}", addEmployeesDto.ProjectId);
 
-            return BadRequest("Project ID and Employee ID must be positive integers");
+            return BadRequest("Project ID must be positive integers");
         }
 
         try
         {
-            var success = await _addEmployeeToProjectHandler.HandleAsync(projectId, employeeId);
+            var success = await _addEmployeeToProjectHandler.HandleAsync(addEmployeesDto.ProjectId, addEmployeesDto.EmployeesId);
 
             if (!success)
             {
-                _logger.LogError("Employee {EmployeeId} already exists in project {ProjectId}", employeeId, projectId);
+                _logger.LogError("Project (projectId: {ProjectId}) not found or no employees found (EmployeeIds: {employeesId}))",
+                    addEmployeesDto.ProjectId, addEmployeesDto.EmployeesId);
 
-                return Conflict("Employee with ID is already assigned to this project");
+                return NotFound("Project not found.");
             }
 
             return Created();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to add employee {EmployeeId} to project {ProjectId}.", employeeId, projectId);
+            _logger.LogError(ex, "Failed to add employees to project {ProjectId}.", addEmployeesDto.ProjectId);
 
             return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error.");
         }
     }
 
     [HttpDelete]
-    public async Task<IActionResult> RemoveEmployeeFromProject([FromBody] int projectId, int employeeId)
+    public async Task<IActionResult> RemoveEmployeesFromProject(ProjectRemoveAddEmployeesDto removeEmployeesDto)
     {
-        if (projectId <= 0 || employeeId <= 0)
+        if (removeEmployeesDto.ProjectId <= 0)
         {
-            _logger.LogWarning("Invalid IDs provided - Project: {ProjectId}, Employee: {EmployeeId}", projectId, employeeId);
+            _logger.LogWarning("Invalid ID provided - Project: {ProjectId}", removeEmployeesDto.ProjectId);
 
-            return BadRequest("Project ID and Employee ID must be positive integers");
+            return BadRequest("Project ID must be positive integers");
         }
 
         try
         {
-            var success = await _removeEmployeeFromProjectHandler.HandleAsync(projectId, employeeId);
+            var success = await _removeEmployeeFromProjectHandler.HandleAsync(removeEmployeesDto.ProjectId, removeEmployeesDto.EmployeesId);
 
             if (!success)
             {
-                _logger.LogError("ProjectEmployee not found. ProjectId: {ProjectId}, EmployeeId: {EmployeeId}", projectId, employeeId);
+                _logger.LogError("Project (projectId: {ProjectId}) not found or no employees found (EmployeeIds: {employeesId}))",
+                    removeEmployeesDto.ProjectId, removeEmployeesDto.EmployeesId);
 
-                return NotFound("ProjectEmployee not found or already deleted");
+                return NotFound("Project not found.");
             }
 
             return NoContent();
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to remove employee {EmployeeId} from project {ProjectId}", employeeId, projectId);
+            _logger.LogError(ex, "Failed to add employees to project {ProjectId}.", removeEmployeesDto.ProjectId);
 
             return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error.");
         }

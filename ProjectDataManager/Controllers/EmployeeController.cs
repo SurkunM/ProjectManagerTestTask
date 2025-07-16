@@ -31,7 +31,7 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<EmployeeResponseDto>>> GetEmployees(string term)
+    public async Task<ActionResult<List<EmployeeResponseDto>>> GetEmployees(string term = "")
     {
         try
         {
@@ -48,7 +48,7 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<EmployeeForSelectDto>>> GetEmployeesForSelect(string term)
+    public async Task<ActionResult<List<EmployeeForSelectDto>>> GetEmployeesForSelect(string term = "")
     {
         try
         {

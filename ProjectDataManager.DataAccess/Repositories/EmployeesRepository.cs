@@ -47,6 +47,13 @@ public class EmployeesRepository : BaseEfRepository<Employee>, IEmployeesReposit
             .ToListAsync();
     }
 
+    public Task<List<Employee>> FindEmployeesByIdAsync(int[] ids)
+    {
+        return DbSet
+            .Where(e => ids.Contains(e.Id))
+            .ToListAsync();
+    }
+
     public Task<Employee?> FindEmployeeByIdAsync(int id)
     {
         return DbSet.FirstOrDefaultAsync(e => e.Id == id);

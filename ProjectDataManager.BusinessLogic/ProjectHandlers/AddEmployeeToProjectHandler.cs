@@ -16,7 +16,7 @@ public class AddEmployeeToProjectHandler
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public async Task<bool> HandleAsync(int projectId, int employeeId)
+    public async Task<bool> HandleAsync(int projectId, int[] employeesId)
     {
         var projectsRepository = _unitOfWork.GetRepository<IProjectsRepository>();
         var employeesRepository = _unitOfWork.GetRepository<IEmployeesRepository>();
@@ -26,27 +26,32 @@ public class AddEmployeeToProjectHandler
             _unitOfWork.BeginTransaction();
 
             var project = await projectsRepository.FindProjectByIdAsync(projectId);
-            var employee = await employeesRepository.FindEmployeeByIdAsync(employeeId);
+            var employees = await employeesRepository.FindEmployeesByIdAsync(employeesId);
 
-            if (project is null || employee is null)
+            if (project is null)
             {
-                _logger.LogError("Project (projectId: {ProjectId}) or Employee (employeeId: {EmployeeId}) not found.", projectId, employeeId);
+                _logger.LogError("Project (projectId: {ProjectId}) not found.", projectId);
 
                 _unitOfWork.RollbackTransaction();
 
                 return false;
             }
 
-            if (await projectsRepository.CheckEmployeeProjectMembershipAsync(projectId, employeeId))
+            if (employees.Count == 0)
             {
-                _logger.LogError("Employee {EmployeeId} is already assigned to project {ProjectId}", employeeId, projectId);
+                _logger.LogError("No employees found (EmployeeIds: {EmployeeIds}).", employeesId);
 
                 _unitOfWork.RollbackTransaction();
 
                 return false;
             }
 
-            await projectsRepository.AddEmployeeToProject(project, employee);
+            if (employees.Count != employeesId.Length)
+            {
+                _logger.LogError("Some employees not found");
+            }
+
+            await projectsRepository.AddEmployeesToProject(project, employees);
 
             await _unitOfWork.SaveAsync();
 
@@ -54,7 +59,7 @@ public class AddEmployeeToProjectHandler
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to adding employee {EmployeeId} to project {ProjectId}. Transaction rolled back", employeeId, projectId);
+            _logger.LogError(ex, "Failed to adding employee {EmployeeId} to project {ProjectId}. Transaction rolled back", employeesId, projectId);
 
             _unitOfWork.RollbackTransaction();
 

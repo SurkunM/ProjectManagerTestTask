@@ -15,7 +15,7 @@ public class RemoveEmployeeFromProjectHandler
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public async Task<bool> HandleAsync(int projectId, int employeeId)
+    public async Task<bool> HandleAsync(int projectId, int[] employeesId)
     {
         var projectsRepository = _unitOfWork.GetRepository<IProjectsRepository>();
 
@@ -23,16 +23,16 @@ public class RemoveEmployeeFromProjectHandler
         {
             _unitOfWork.BeginTransaction();
 
-            var projectEmployee = await projectsRepository.FindProjectEmployeeByIdAsync(projectId, employeeId);
+            var projectEmployee = await projectsRepository.FindProjectEmployeeByIdAsync(projectId, employeesId);
 
-            if (projectEmployee == null)
+            if (projectEmployee.Count == 0)
             {
                 _unitOfWork.RollbackTransaction();
 
                 return false;
             }
 
-            projectsRepository.RemoveEmployeeFromProject(projectEmployee);
+            projectsRepository.RemoveEmployeesFromProject(projectEmployee);
 
             await _unitOfWork.SaveAsync();
 
@@ -40,7 +40,7 @@ public class RemoveEmployeeFromProjectHandler
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to remove employee {EmployeeId} from project {ProjectId}. Transaction rolled back", employeeId, projectId);
+            _logger.LogError(ex, "Failed to remove employee {EmployeeId} from project {ProjectId}. Transaction rolled back", employeesId, projectId);
 
             _unitOfWork.RollbackTransaction();
 

@@ -47,43 +47,48 @@ public class ProjectsRepository : BaseEfRepository<Project>, IProjectsRepository
             .ToListAsync();
     }
 
-    public Task<bool> CheckEmployeeProjectMembershipAsync(int projectId, int employeeId)
-    {
-        return DbContext.Set<ProjectEmployee>().AnyAsync(pe => pe.ProjectId == projectId && pe.EmployeeId == employeeId);
-    }
-
     public Task<Project?> FindProjectByIdAsync(int id)
     {
         return DbSet.FirstOrDefaultAsync(p => p.Id == id);
     }
 
-    public Task<ProjectEmployee?> FindProjectEmployeeByIdAsync(int projectId, int employeeId)
+    public Task<List<ProjectEmployee>> FindProjectEmployeeByIdAsync(int projectId, int[] employeeId)
     {
         return DbContext.ProjectEmployees
-            .FirstOrDefaultAsync(pe => pe.ProjectId == projectId && pe.EmployeeId == employeeId);
+            .Where(pe => pe.ProjectId == projectId && employeeId.Contains(pe.EmployeeId))
+            .ToListAsync();
     }
 
-    public Task AddEmployeeToProject(Project project, Employee employee)
+    public Task AddEmployeesToProject(Project project, List<Employee> employees)
     {
-        var projectEmployee = new ProjectEmployee
-        {
-            ProjectId = project.Id,
-            Project = project,
-            EmployeeId = employee.Id,
-            Employee = employee
-        };
+        var existingEmployeeIds = project.ProjectEmployees
+            .Select(pe => pe.EmployeeId)
+            .ToHashSet();
 
-        return DbContext.ProjectEmployees.AddAsync(projectEmployee).AsTask();
+        var projectEmployees = employees
+            .Where(e => !existingEmployeeIds.Contains(e.Id))
+            .Select(e => new ProjectEmployee
+            {
+                ProjectId = project.Id,
+                Project = project,
+                EmployeeId = e.Id,
+                Employee = e
+            });
+
+        return DbContext.ProjectEmployees.AddRangeAsync(projectEmployees);
     }
 
-    public void RemoveEmployeeFromProject(ProjectEmployee projectEmployee)
+    public void RemoveEmployeesFromProject(List<ProjectEmployee> projectEmployeesList)
     {
-        if (DbContext.Entry(projectEmployee).State == EntityState.Detached)
+        foreach (var projectEmployee in projectEmployeesList)
         {
-            DbContext.ProjectEmployees.Attach(projectEmployee);
+            if (DbContext.Entry(projectEmployee).State == EntityState.Detached)
+            {
+                DbContext.ProjectEmployees.Attach(projectEmployee);
+            }
         }
 
-        DbContext.ProjectEmployees.Remove(projectEmployee);
+        DbContext.ProjectEmployees.RemoveRange(projectEmployeesList);
     }
 
     private static Expression<Func<Project, object>> CreateSortExpression(string propertyName)

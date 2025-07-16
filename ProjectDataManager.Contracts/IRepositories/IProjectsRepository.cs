@@ -10,11 +10,9 @@ public interface IProjectsRepository : IRepository<Project>
 
     Task<Project?> FindProjectByIdAsync(int id);
 
-    Task<ProjectEmployee?> FindProjectEmployeeByIdAsync(int projectId, int employeeId);
+    Task<List<ProjectEmployee>> FindProjectEmployeeByIdAsync(int projectId, int[] employeeId);
 
-    Task<bool> CheckEmployeeProjectMembershipAsync(int projectId, int employeeId);
+    Task AddEmployeesToProject(Project project, List<Employee> employee);
 
-    Task AddEmployeeToProject(Project project, Employee employee);
-
-    void RemoveEmployeeFromProject(ProjectEmployee projectEmployee);
+    void RemoveEmployeesFromProject(List<ProjectEmployee> projectEmployeesList);
 }

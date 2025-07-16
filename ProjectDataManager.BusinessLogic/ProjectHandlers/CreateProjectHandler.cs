@@ -27,7 +27,7 @@ public class CreateProjectHandler
         {
             _unitOfWork.BeginTransaction();
 
-            var manager = await employeeRepository.FindEmployeeByIdAsync(projectDto.Id);
+            var manager = await employeeRepository.FindEmployeeByIdAsync(projectDto.ProjectManagerId);
 
             if (manager is null)
             {
@@ -36,7 +36,19 @@ public class CreateProjectHandler
                 return false;
             }
 
-            await projectsRepository.CreateAsync(projectDto.ToModel(manager));
+            var projectModel = projectDto.ToModel(manager);
+
+            await projectsRepository.CreateAsync(projectModel);
+
+            if (projectDto.ProjectEmployeesId.Length != 0)
+            {
+                var employees = await employeeRepository.FindEmployeesByIdAsync(projectDto.ProjectEmployeesId);
+
+                if (employees.Count > 0)
+                {
+                    await projectsRepository.AddEmployeesToProject(projectModel, employees);
+                }
+            }
 
             await _unitOfWork.SaveAsync();
 
