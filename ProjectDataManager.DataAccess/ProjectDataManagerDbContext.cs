@@ -11,6 +11,8 @@ public class ProjectDataManagerDbContext : DbContext
 
     public virtual DbSet<ProjectEmployee> ProjectEmployees { get; set; }
 
+    public virtual DbSet<ProjectTask> Tasks { get; set; }
+
     public ProjectDataManagerDbContext(DbContextOptions<ProjectDataManagerDbContext> options) : base(options) { }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -56,6 +58,29 @@ public class ProjectDataManagerDbContext : DbContext
             b.HasOne(pe => pe.Project)
                 .WithMany(p => p.ProjectEmployees)
                 .HasForeignKey(pe => pe.ProjectId);
+        });
+
+        modelBuilder.Entity<ProjectTask>(b =>
+        {
+            b.Property(b => b.Name)
+                .HasMaxLength(50);
+
+            b.Property(b => b.Comment)
+                .HasMaxLength(1000);
+
+            b.HasOne(t => t.Author)
+                .WithMany(a => a.AuthoredTasks)
+                .HasForeignKey(t => t.AuthorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(t => t.Executor)
+                .WithMany(e => e.ExecutingTasks)
+                .HasForeignKey(t => t.ExecutorId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(t => t.Project)
+                .WithMany(p => p.Tasks)
+                .HasForeignKey(t => t.ProjectId);
         });
     }
 }

@@ -21,4 +21,6 @@ public class Project
     public required virtual Employee ProjectManager { get; set; }
 
     public virtual ICollection<ProjectEmployee> ProjectEmployees { get; set; } = new List<ProjectEmployee>();
+
+    public virtual ICollection<ProjectTask> Tasks { get; set; } = new List<ProjectTask>();
 }

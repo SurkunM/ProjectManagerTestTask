@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProjectDataManager.DataAccess;
 
@@ -11,9 +12,11 @@ using ProjectDataManager.DataAccess;
 namespace ProjectDataManager.DataAccess.Migrations
 {
     [DbContext(typeof(ProjectDataManagerDbContext))]
-    partial class ProjectDataManagerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250716130906_CreateProjectTaskEntity")]
+    partial class CreateProjectTaskEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
