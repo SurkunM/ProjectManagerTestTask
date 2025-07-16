@@ -34,7 +34,7 @@ public class UnitOfWork : IUnitOfWork
 
         if (_transaction != null)
         {
-            throw new InvalidOperationException("Транзакция уже создана");
+            throw new InvalidOperationException("Transaction has already been created.");
         }
 
         _transaction = _db.Database.BeginTransaction();
@@ -84,6 +84,6 @@ public class UnitOfWork : IUnitOfWork
             return;
         }
 
-        throw new ObjectDisposedException("Объект уже удален.");
+        throw new ObjectDisposedException("Object has already been deleted.");
     }
 }
