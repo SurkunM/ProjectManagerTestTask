@@ -3,30 +3,20 @@ import { createStore } from "vuex";
 
 export default createStore({
     state: {
-        employees: [
-            {
-                id: 1,
-                firstName: "TestName",
-                lastname: "TestLastName",
-                middleName: null,
-            },
-            {
-                id: 2,
-                firstName: "TestName2",
-                lastname: "TestLastName2",
-                middleName: "asd",
-            }
-        ],
+        employees: [],
+        selecteedEmployees: [],
 
         projectData: {
+            id: 0,
             name: "",
             customerCompany: "",
             contractorCompany: "",
             startDate: null,
             endDate: null,
             priority: 0,
-            manager: "",
-            executers: []
+            projectManagerId: "",
+
+            projectEmployeesId: []
         },
 
         term: "",
@@ -51,17 +41,55 @@ export default createStore({
         },
 
         executers(state) {
-            return state.projectData.executers;
+            return state.selecteedEmployees;
         },
     },
 
     mutations: {
         deleteExecuter(state, payload) {
-            state.projectData.executers = state.projectData.executers.filter(e => e.id !== payload.id);
+            state.selecteedEmployees = state.selecteedEmployees.filter(e => e.id !== payload.id);
         },
 
         setEmployees(state, employees) {
             state.employees = employees;
+        },
+
+        setExecuter(state, employees) {
+            state.selecteedEmployees.push(employees);
+        },
+
+        setSelectedEmployeesId(state) {
+            state.projectData.projectEmployeesId = state.selecteedEmployees.map(e => e.id);
+        },
+
+        setTerm(state, value) {
+            state.term = value;
+        },
+
+        setIsLoading(state, value) {
+            state.isLoading = value;
+        },
+
+        setDateTime(state) {
+            state.projectData.startDate = new Date(state.projectData.endDate);
+            state.projectData.endDate = new Date(state.projectData.endDate);
+        },
+
+        resetFields(state) {
+            state.selecteedEmployees = [];
+
+            state.projectData = {
+                id: 0,
+                name: "",
+                customerCompany: "",
+                contractorCompany: "",
+                startDate: null,
+                endDate: null,
+                priority: 0,
+                projectManagerId: "",
+
+                projectEmployeesId: []
+            };
         }
     },
 
@@ -69,17 +97,25 @@ export default createStore({
         loadEmployees({ commit, state }) {
             commit("setIsLoading", true);
 
-            return axios.get("/api/Employee/GetEmployees", {
+            return axios.get("/api/Employee/GetEmployeesForSelect", {
                 params: {
-                    term: state.term,
-                    sortBy: state.sortByColumn,
-                    isDescending: state.isDescending
+                    term: state.term || ""
                 }
             }).then(response => {
-                commit("setEmployees", response.data.employees);
+                commit("setEmployees", response.data);
             }).finally(() => {
                 commit("setIsLoading", false);
             })
-        }
+        },
+
+        createProject({ commit, state }) {
+            commit("setIsLoading", true);
+            commit("setSelectedEmployeesId");
+
+            return axios.post("/api/Project/CreateProject", state.projectData)
+                .finally(() => {
+                    commit("setIsLoading", false);
+                });
+        },
     }
 })

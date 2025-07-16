@@ -6,13 +6,13 @@
             </div>
             <div class="card-body">
                 <div class="upload-area p-5 text-center"
-                     @dragover.prevent="onDragOver"
-                     @dragleave.prevent="onDragLeave"
+                     @dragover.prevent=""
+                     @dragleave.prevent=""
                      @drop.prevent="onDrop">
                     <input type="file"
                            ref="fileInput"
                            @change="handleFileSelect"
-                           class="d-none"/>
+                           class="d-none" />
 
                     <div v-if="!selectedFile">
                         <p class="lead mb-3">Drag a file here or choose manually.</p>
@@ -38,8 +38,8 @@
                     <button class="btn btn-secondary px-4" @click="prevStep">
                         Back
                     </button>
-                    <button class="btn btn-primary px-4" @click="nextStep">
-                        Finish
+                    <button class="btn btn-primary px-4" @click="createProject">
+                        Create
                     </button>
                 </div>
             </div>
@@ -52,8 +52,7 @@
 
         data() {
             return {
-                selectedFile: null,
-                isDragging: false
+                selectedFile: null
             };
         },
         methods: {
@@ -69,61 +68,42 @@
                 this.selectedFile = event.target.files[0];
             },
 
-            onDragOver() {
-                this.isDragging = true;
-            },
-
-            onDragLeave() {
-                this.isDragging = false;
-            },
-
             onDrop(event) {
-                this.isDragging = false;
                 const droppedFile = event.dataTransfer.files[0];
+
                 if (droppedFile) {
                     this.selectedFile = droppedFile;
                 }
             },
 
             formatFileSize(sizeInBytes) {
-                const units = ["байт", "КБ", "МБ"];
-                let unitIndex = 0;
+                const units = ["bytes", "KB", "MB"];
+                let index = 0;
 
-                while (sizeInBytes >= 1024 && unitIndex < units.length - 1) {
+                while (sizeInBytes >= 1024 && index < units.length - 1) {
                     sizeInBytes /= 1024;
-                    unitIndex++;
+                    index++;
                 }
 
-                return `${Math.round(sizeInBytes * 100) / 100} ${units[unitIndex]}`;
+                return `${Math.round(sizeInBytes * 100) / 100} ${units[index]}`;
             },
 
             prevStep() {
                 this.$router.push("/executers");
             },
 
-            async uploadFile() {
-                if (!this.selectedFile) {
-                    alert('Файл не выбран');
-                    return;
-                }
+            createProject(){
+                this.$store.dispatch("createProject")
+                .then(() => {
+                    alert("Success");
 
-                const formData = new FormData();
-                formData.append('projectDocument', this.selectedFile);
+                    this.$store.commit("resetFields")
+                    this.$router.push("/");                    
+                });
+            },
 
-                try {
-                    const response = await fetch('/api/upload', {
-                        method: 'POST',
-                        body: formData
-                    });
-
-                    if (response.ok) {
-                        alert('Документ успешно загружен!');
-                    } else {
-                        alert('Ошибка при загрузке файла');
-                    }
-                } catch (err) {
-                    alert('Что-то пошло не так: ' + err.message);
-                }
+            uploadFile() {
+                alert("File is uploaded");
             }
         }
     };

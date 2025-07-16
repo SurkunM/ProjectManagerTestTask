@@ -69,7 +69,7 @@
 
             prevStep() {
                 this.$router.push("/");
-            },
+            }
         }
     }
 </script>

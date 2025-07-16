@@ -26,7 +26,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="priority" class="form-label fs-5">Priority</label>
-                        <select class="form-select" id="priority" v-model.trim="project.priority">
+                        <select class="form-select" id="priority" v-model.number="project.priority">
                             <option value="1">Low</option>
                             <option value="2">Middle</option>
                             <option value="3">High</option>
@@ -76,6 +76,8 @@
                 if (!this.isValidFields()) {
                     return;
                 }
+
+                this.$store.commit("setDateTime");
 
                 this.$router.push("/companies");
             }

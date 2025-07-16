@@ -15,11 +15,11 @@
                         <input type="text"
                                class="form-control mb-2"
                                placeholder="search..."
-                               v-model="trim"
+                               v-model="term"
                                @input="debouncedSearch">
 
                         <select class="form-select"
-                                v-model="project.manager">
+                                v-model="project.projectManagerId">
                             <option disabled selected value="">Choose an manager</option>
 
                             <option v-for="employee in employees"
@@ -49,12 +49,14 @@
     export default {
         data() {
             return {
-                trim: "",
+                term: "",
                 debounceTimeout: null,
             };
         },
 
         created() {
+            this.$store.commit("setTerm", this.term);
+
             this.$store.dispatch("loadEmployees")
                 .catch(() => {
                     alert("Error! Failed to upload");
@@ -77,7 +79,7 @@
 
         methods: {
             nextStep() {
-                if (!this.project.manager) {
+                if (!this.project.projectManagerId) {
                     alert("Please identify the project manager.");
                     return;
                 }
@@ -90,13 +92,13 @@
             },
 
             debouncedSearch: debounce(function () {
-                //this.loadEmployees(this.searchQuery);
+                this.$store.commit("setTerm", this.term);
 
                 this.$store.dispatch("loadEmployees")
                     .catch(() => {
                         alert("Error! Failed to upload");
                     });
-            }, 300),
+            }, 300)
         }
     }
 </script>

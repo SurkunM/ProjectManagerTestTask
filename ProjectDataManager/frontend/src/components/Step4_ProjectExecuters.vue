@@ -14,8 +14,9 @@
                         <input type="text"
                                class="form-control mb-2"
                                placeholder="search..."
-                               v-model="trim"
+                               v-model="term"
                                id="executersSearch"
+                               autocomplete="off"
                                @input="debouncedSearch">
 
                         <select id="executerSelect"
@@ -52,7 +53,6 @@
                         Next
                     </button>
                 </div>
-
             </div>
         </div>
     </div>
@@ -63,13 +63,14 @@
     export default {
         data() {
             return {
-                trim: "",
-                debounceTimeout: null,
-                selectedExecuters: [],
+                term: "",
+                debounceTimeout: null
             };
         },
 
         created() {
+            this.$store.commit("setTerm", this.term);
+
             this.$store.dispatch("loadEmployees")
                 .catch(() => {
                     alert("Error! Failed to upload");
@@ -98,11 +99,8 @@
                     return;
                 }
 
-                let employee = this.employees.find(emp => emp.id === id);
-
-                if (employee) {
-                    this.executers.push(employee);
-                }
+                const executer = this.employees.find(e => e.id === id);
+                this.$store.commit("setExecuter", executer);
             },
 
             deleteSelectedExecuter(id) {
@@ -123,13 +121,13 @@
             },
 
             debouncedSearch: debounce(function () {
-                //this.loadEmployees(this.searchQuery);
+                this.$store.commit("setTerm", this.term);
 
                 this.$store.dispatch("loadEmployees")
                     .catch(() => {
                         alert("Error! Failed to upload");
                     });
-            }, 300),
+            }, 300)
         }
     }
 </script>
