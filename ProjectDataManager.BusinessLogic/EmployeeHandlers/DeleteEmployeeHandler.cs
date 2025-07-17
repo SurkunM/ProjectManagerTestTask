@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using ProjectDataManager.BusinessLogic.ProjectHandlers;
 using ProjectDataManager.Contracts.IRepositories;
 using ProjectDataManager.Contracts.IUnitOfWork;
 
@@ -9,10 +8,10 @@ public class DeleteEmployeeHandler
 {
     private readonly IUnitOfWork _unitOfWork;
 
-    private readonly ILogger<DeleteProjectHandler> _logger;
+    private readonly ILogger<DeleteEmployeeHandler> _logger;
 
 
-    public DeleteEmployeeHandler(IUnitOfWork unitOfWork, ILogger<DeleteProjectHandler> logger)
+    public DeleteEmployeeHandler(IUnitOfWork unitOfWork, ILogger<DeleteEmployeeHandler> logger)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));

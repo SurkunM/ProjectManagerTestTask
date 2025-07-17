@@ -26,6 +26,16 @@ public class ProjectsRepository : BaseEfRepository<Project>, IProjectsRepository
                 || c.CustomerCompany.Contains(queryParameters.Term));
         }
 
+        if (queryParameters.StartDateFrom.HasValue)
+        {
+            querySbSet = querySbSet.Where(p => p.StartDate >= queryParameters.StartDateFrom.Value);
+        }
+
+        if (queryParameters.StartDateTo.HasValue)
+        {
+            querySbSet = querySbSet.Where(p => p.StartDate <= queryParameters.StartDateTo.Value);
+        }
+
         var orderByExpression = CreateSortExpression(queryParameters.SortBy);
 
         var orderedQuery = queryParameters.IsDescending

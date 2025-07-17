@@ -23,4 +23,8 @@ public class GetProjectsQueryParameters
     }
 
     public bool IsDescending { get; set; } = false;
+
+    public DateTime? StartDateFrom { get; set; }
+
+    public DateTime? StartDateTo { get; set; }
 }
