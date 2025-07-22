@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using ProjectDataManager.Contracts.Dto.ProjectDto;
 using ProjectDataManager.Contracts.Dto.QueryParameters;
 using ProjectDataManager.Contracts.IRepositories;
@@ -12,7 +11,7 @@ namespace ProjectDataManager.DataAccess.Repositories;
 
 public class ProjectsRepository : BaseEfRepository<Project>, IProjectsRepository
 {
-    public ProjectsRepository(ProjectDataManagerDbContext dbContext, ILogger<ProjectsRepository> logger) : base(dbContext) { }
+    public ProjectsRepository(ProjectDataManagerDbContext dbContext) : base(dbContext) { }
 
     public async Task<List<ProjectResponseDto>> GetProjectsAsync(GetProjectsQueryParameters queryParameters)
     {
