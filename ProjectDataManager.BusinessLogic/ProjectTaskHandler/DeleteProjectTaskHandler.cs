@@ -19,22 +19,22 @@ public class DeleteProjectTaskHandler
 
     public async Task<bool> HandleAsync(int id)
     {
-        var employeesRepository = _unitOfWork.GetRepository<IEmployeesRepository>();
+        var projectTasksRepository = _unitOfWork.GetRepository<IProjectTasksRepository>();
 
         try
         {
             _unitOfWork.BeginTransaction();
 
-            var employee = await employeesRepository.FindEmployeeByIdAsync(id);
+            var task = await projectTasksRepository.FindTaskByIdAsync(id);
 
-            if (employee is null)
+            if (task is null)
             {
                 _unitOfWork.RollbackTransaction();
 
                 return false;
             }
 
-            employeesRepository.Delete(employee);
+            projectTasksRepository.Delete(task);
 
             await _unitOfWork.SaveAsync();
 
@@ -42,7 +42,7 @@ public class DeleteProjectTaskHandler
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to delete employee {EmployeeId}. Transaction rolled back", id);
+            _logger.LogError(ex, "Failed to delete task {taskId}. Transaction rolled back", id);
 
             _unitOfWork.RollbackTransaction();
 

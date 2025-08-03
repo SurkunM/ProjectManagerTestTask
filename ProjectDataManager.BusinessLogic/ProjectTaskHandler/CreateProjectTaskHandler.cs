@@ -1,4 +1,4 @@
-﻿using ProjectDataManager.Contracts.Dto.EmployeeDto;
+﻿using ProjectDataManager.Contracts.Dto.ProjectTaskDto;
 using ProjectDataManager.Contracts.IRepositories;
 using ProjectDataManager.Contracts.IUnitOfWork;
 using ProjectDataManager.Contracts.MappingExtensions;
@@ -14,12 +14,38 @@ public class CreateProjectTaskHandler
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
     }
 
-    public async Task HandleAsync(EmployeeCreateUpdateDto requestDto)
+    public async Task<bool> HandleAsync(ProjectTaskCreateUpdateDto requestDto)
     {
-        var employeesRepository = _unitOfWork.GetRepository<IEmployeesRepository>();
+        var projectTasksRepository = _unitOfWork.GetRepository<IProjectTasksRepository>();
+        var projectRepository = _unitOfWork.GetRepository<IProjectsRepository>();
+        var employeeRepository = _unitOfWork.GetRepository<IEmployeesRepository>();
 
-        await employeesRepository.CreateAsync(requestDto.ToModel());
+        try
+        {
+            _unitOfWork.BeginTransaction();
 
-        await _unitOfWork.SaveAsync();
+            var project = await projectRepository.FindProjectByIdAsync(requestDto.ProjectId);
+            var author = await employeeRepository.FindEmployeeByIdAsync(requestDto.AuthorId);
+            var executor = await employeeRepository.FindEmployeeByIdAsync(requestDto.ExecutorId);
+
+            if (project is null || executor is null || author is null)
+            {
+                _unitOfWork.RollbackTransaction();
+
+                return false;
+            }
+
+            await projectTasksRepository.CreateAsync(requestDto.ToModel(project, executor, author));
+
+            await _unitOfWork.SaveAsync();
+
+            return true;
+        }
+        catch (Exception)
+        {
+            _unitOfWork.RollbackTransaction();
+
+            throw;
+        }
     }
 }

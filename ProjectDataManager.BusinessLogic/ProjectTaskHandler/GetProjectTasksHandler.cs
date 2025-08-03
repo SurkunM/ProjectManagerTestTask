@@ -1,4 +1,4 @@
-﻿using ProjectDataManager.Contracts.Dto.EmployeeDto;
+﻿using ProjectDataManager.Contracts.Dto.ProjectTaskDto;
 using ProjectDataManager.Contracts.IRepositories;
 using ProjectDataManager.Contracts.IUnitOfWork;
 
@@ -13,10 +13,10 @@ public class GetProjectTasksHandler
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
     }
 
-    public Task<List<EmployeeResponseDto>> HandleAsync(string term)
+    public Task<List<ProjectTaskResponseDto>> HandleAsync(string term)
     {
-        var employeesRepository = _unitOfWork.GetRepository<IEmployeesRepository>();
+        var projectTasksRepository = _unitOfWork.GetRepository<IProjectTasksRepository>();
 
-        return employeesRepository.GetEmployeesAsync(term);
+        return projectTasksRepository.GetTasksAsync(term);
     }
 }

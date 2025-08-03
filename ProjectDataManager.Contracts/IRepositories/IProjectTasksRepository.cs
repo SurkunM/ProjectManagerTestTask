@@ -1,10 +1,11 @@
-﻿using ProjectDataManager.Model;
+﻿using ProjectDataManager.Contracts.Dto.ProjectTaskDto;
+using ProjectDataManager.Model;
 
 namespace ProjectDataManager.Contracts.IRepositories;
 
 public interface IProjectTasksRepository : IRepository<ProjectTask>
 {
-    Task<ProjectTask> FindTaskByIdAsync(int id);
+    Task<ProjectTask?> FindTaskByIdAsync(int id);
 
-    Task<ProjectTask> GetTasks();
+    Task<List<ProjectTaskResponseDto>> GetTasksAsync(string term);
 }
