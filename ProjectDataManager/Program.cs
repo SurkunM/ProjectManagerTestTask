@@ -6,6 +6,7 @@ using ProjectDataManager.Contracts.IUnitOfWork;
 using ProjectDataManager.DataAccess;
 using ProjectDataManager.DataAccess.Repositories;
 using ProjectDataManager.DataAccess.UnitOfWork;
+using ProjectDataManager.Middleware;
 
 namespace ProjectDataManager;
 
@@ -72,6 +73,7 @@ public class Program
         app.UseDefaultFiles();
         app.UseStaticFiles();
 
+        app.UseMiddleware<ExceptionMiddleware>();
         app.UseRouting();
 
         app.UseAuthorization();
