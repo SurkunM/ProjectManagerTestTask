@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using ProductionChain.Contracts.Exceptions;
 using ProjectDataManager.Contracts.IRepositories;
 using ProjectDataManager.Contracts.IUnitOfWork;
 
@@ -16,7 +17,7 @@ public class DeleteProjectHandler
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public async Task<bool> HandleAsync(int id)
+    public async Task HandleAsync(int id)
     {
         var projectsRepository = _unitOfWork.GetRepository<IProjectsRepository>();
 
@@ -28,20 +29,16 @@ public class DeleteProjectHandler
 
             if (project is null)
             {
-                _unitOfWork.RollbackTransaction();
-
-                return false;
+                throw new NotFoundException("Project not found or already deleted");
             }
 
             projectsRepository.Delete(project);
 
             await _unitOfWork.SaveAsync();
-
-            return true;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to delete project {ProjectId}. Transaction rolled back", id);
+            _logger.LogError(ex, "Transaction rolled back");
 
             _unitOfWork.RollbackTransaction();
 

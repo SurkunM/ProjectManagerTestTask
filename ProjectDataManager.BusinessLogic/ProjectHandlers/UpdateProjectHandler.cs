@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using ProductionChain.Contracts.Exceptions;
 using ProjectDataManager.Contracts.Dto.ProjectDto;
 using ProjectDataManager.Contracts.IRepositories;
 using ProjectDataManager.Contracts.IUnitOfWork;
@@ -18,7 +19,7 @@ public class UpdateProjectHandler
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public async Task<bool> HandleAsync(ProjectCreateUpdateDto projectDto)
+    public async Task HandleAsync(ProjectCreateUpdateDto projectDto)
     {
         var projectsRepository = _unitOfWork.GetRepository<IProjectsRepository>();
         var employeeRepository = _unitOfWork.GetRepository<IEmployeesRepository>();
@@ -31,20 +32,16 @@ public class UpdateProjectHandler
 
             if (manager is null)
             {
-                _unitOfWork.RollbackTransaction();
-
-                return false;
+                throw new NotFoundException("Project Manager not found or already deleted");
             }
 
             projectsRepository.Update(projectDto.ToModel(manager));
 
             await _unitOfWork.SaveAsync();
-
-            return true;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to create project. Transaction rolled back");
+            _logger.LogError(ex, "Transaction rolled back");
 
             _unitOfWork.RollbackTransaction();
 

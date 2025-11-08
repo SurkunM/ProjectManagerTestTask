@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using ProductionChain.Contracts.Exceptions;
 using ProjectDataManager.Contracts.IRepositories;
 using ProjectDataManager.Contracts.IUnitOfWork;
 
@@ -29,9 +30,7 @@ public class DeleteEmployeeHandler
 
             if (employee is null)
             {
-                _unitOfWork.RollbackTransaction();
-
-                return false;
+                throw new NotFoundException("Employee not found or already deleted");
             }
 
             employeesRepository.Delete(employee);
@@ -42,7 +41,7 @@ public class DeleteEmployeeHandler
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to delete employee {EmployeeId}. Transaction rolled back", id);
+            _logger.LogError(ex, "Transaction rolled back");
 
             _unitOfWork.RollbackTransaction();
 

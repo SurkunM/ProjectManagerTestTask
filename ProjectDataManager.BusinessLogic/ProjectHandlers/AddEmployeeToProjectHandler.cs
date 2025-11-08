@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using ProductionChain.Contracts.Exceptions;
 using ProjectDataManager.Contracts.IRepositories;
 using ProjectDataManager.Contracts.IUnitOfWork;
 
@@ -16,7 +17,7 @@ public class AddEmployeeToProjectHandler
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public async Task<bool> HandleAsync(int projectId, int[] employeesId)
+    public async Task HandleAsync(int projectId, int[] employeesId)
     {
         var projectsRepository = _unitOfWork.GetRepository<IProjectsRepository>();
         var employeesRepository = _unitOfWork.GetRepository<IEmployeesRepository>();
@@ -30,20 +31,12 @@ public class AddEmployeeToProjectHandler
 
             if (project is null)
             {
-                _logger.LogError("Project (projectId: {ProjectId}) not found.", projectId);
-
-                _unitOfWork.RollbackTransaction();
-
-                return false;
+                throw new NotFoundException("Project not found");
             }
 
             if (employees.Count == 0)
             {
-                _logger.LogError("No employees found (EmployeeIds: {EmployeeIds}).", employeesId);
-
-                _unitOfWork.RollbackTransaction();
-
-                return false;
+                throw new NotFoundException("No employees found");
             }
 
             if (employees.Count != employeesId.Length)
@@ -55,11 +48,10 @@ public class AddEmployeeToProjectHandler
 
             await _unitOfWork.SaveAsync();
 
-            return true;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to adding employee {EmployeeId} to project {ProjectId}. Transaction rolled back", employeesId, projectId);
+            _logger.LogError(ex, "Transaction rolled back");
 
             _unitOfWork.RollbackTransaction();
 

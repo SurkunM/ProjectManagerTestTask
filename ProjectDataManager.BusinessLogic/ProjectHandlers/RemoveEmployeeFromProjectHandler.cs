@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using ProductionChain.Contracts.Exceptions;
 using ProjectDataManager.Contracts.IRepositories;
 using ProjectDataManager.Contracts.IUnitOfWork;
 
@@ -9,6 +10,7 @@ public class RemoveEmployeeFromProjectHandler
     private readonly IUnitOfWork _unitOfWork;
 
     private readonly ILogger<RemoveEmployeeFromProjectHandler> _logger;
+
     public RemoveEmployeeFromProjectHandler(IUnitOfWork unitOfWork, ILogger<RemoveEmployeeFromProjectHandler> logger)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
@@ -27,9 +29,7 @@ public class RemoveEmployeeFromProjectHandler
 
             if (projectEmployee.Count == 0)
             {
-                _unitOfWork.RollbackTransaction();
-
-                return false;
+                throw new NotFoundException("No employees were found to delete");
             }
 
             projectsRepository.RemoveEmployeesFromProject(projectEmployee);
@@ -40,7 +40,7 @@ public class RemoveEmployeeFromProjectHandler
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to remove employee {EmployeeId} from project {ProjectId}. Transaction rolled back", employeesId, projectId);
+            _logger.LogError(ex, "Transaction rolled back");
 
             _unitOfWork.RollbackTransaction();
 
