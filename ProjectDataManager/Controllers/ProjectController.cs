@@ -48,18 +48,9 @@ public class ProjectController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        try
-        {
-            var projects = await _getProjectHandler.HandleAsync(queryParameters);
+        var projects = await _getProjectHandler.HandleAsync(queryParameters);
 
-            return Ok(projects);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to retrieve project list.");
-
-            return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error.");
-        }
+        return Ok(projects);
     }
 
     [HttpPost]
@@ -79,25 +70,9 @@ public class ProjectController : ControllerBase
             return UnprocessableEntity(ModelState);
         }
 
-        try
-        {
-            var success = await _createProjectHandler.HandleAsync(projectDto);
+        await _createProjectHandler.HandleAsync(projectDto);
 
-            if (!success)
-            {
-                _logger.LogError("Project Manager not found to create the project.(ID: {ProjectManagerId})", projectDto.ProjectManagerId);
-
-                return NotFound("Project Manager not found or already deleted");
-            }
-
-            return Created();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to create project. Payload: {ProjectDto}.", projectDto);
-
-            return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error.");
-        }
+        return Created();
     }
 
     [HttpPut]
@@ -112,30 +87,14 @@ public class ProjectController : ControllerBase
 
         if (!ModelState.IsValid)
         {
-            _logger.LogError("Invalid project update data. Validation errors: {ValidationErrors}, Payload: {ProjectId}", ModelState, projectDto);
+            _logger.LogError("Invalid project update data. Validation errors: {ValidationErrors}, Payload: {ProjectDto}", ModelState, projectDto);
 
             return UnprocessableEntity(ModelState);
         }
 
-        try
-        {
-            var success = await _updateProjectHandler.HandleAsync(projectDto);
+        await _updateProjectHandler.HandleAsync(projectDto);
 
-            if (!success)
-            {
-                _logger.LogError("Project Manager not found to update the project. (ID: {ProjectManagerId})", projectDto.ProjectManagerId);
-
-                return NotFound("Project Manager not found or already deleted");
-            }
-
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to update project (ID: {ProjectId}).", projectDto.Id);
-
-            return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error.");
-        }
+        return NoContent();
     }
 
     [HttpDelete]
@@ -148,25 +107,9 @@ public class ProjectController : ControllerBase
             return BadRequest("Valid project ID must be provided.");
         }
 
-        try
-        {
-            var success = await _deleteProjectHandler.HandleAsync(id);
+        await _deleteProjectHandler.HandleAsync(id);
 
-            if (!success)
-            {
-                _logger.LogError("Project not found for deletion (ID: {ProjectId})", id);
-
-                return NotFound("Project not found or already deleted");
-            }
-
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to delete project (ID: {ProjectId})", id);
-
-            return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error.");
-        }
+        return NoContent();
     }
 
     [HttpPost]
@@ -179,26 +122,9 @@ public class ProjectController : ControllerBase
             return BadRequest("Project ID must be positive integers");
         }
 
-        try
-        {
-            var success = await _addEmployeeToProjectHandler.HandleAsync(addEmployeesDto.ProjectId, addEmployeesDto.EmployeesId);
+        await _addEmployeeToProjectHandler.HandleAsync(addEmployeesDto.ProjectId, addEmployeesDto.EmployeesId);
 
-            if (!success)
-            {
-                _logger.LogError("Project (projectId: {ProjectId}) not found or no employees found (EmployeeIds: {employeesId}))",
-                    addEmployeesDto.ProjectId, addEmployeesDto.EmployeesId);
-
-                return NotFound("Project not found.");
-            }
-
-            return Created();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to add employees to project {ProjectId}.", addEmployeesDto.ProjectId);
-
-            return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error.");
-        }
+        return Created();
     }
 
     [HttpDelete]
@@ -211,25 +137,8 @@ public class ProjectController : ControllerBase
             return BadRequest("Project ID must be positive integers");
         }
 
-        try
-        {
-            var success = await _removeEmployeeFromProjectHandler.HandleAsync(removeEmployeesDto.ProjectId, removeEmployeesDto.EmployeesId);
+        await _removeEmployeeFromProjectHandler.HandleAsync(removeEmployeesDto.ProjectId, removeEmployeesDto.EmployeesId);
 
-            if (!success)
-            {
-                _logger.LogError("Project (projectId: {ProjectId}) not found or no employees found (EmployeeIds: {employeesId}))",
-                    removeEmployeesDto.ProjectId, removeEmployeesDto.EmployeesId);
-
-                return NotFound("Project not found.");
-            }
-
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to add employees to project {ProjectId}.", removeEmployeesDto.ProjectId);
-
-            return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error.");
-        }
+        return NoContent();
     }
 }

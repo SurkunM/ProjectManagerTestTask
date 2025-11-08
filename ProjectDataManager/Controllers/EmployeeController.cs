@@ -33,35 +33,17 @@ public class EmployeeController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<EmployeeResponseDto>>> GetEmployees(string term = "")
     {
-        try
-        {
-            var employee = await _getEmployeeHandler.HandleAsync(term);
+        var employee = await _getEmployeeHandler.HandleAsync(term);
 
-            return Ok(employee);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to retrieve employee list.");
-
-            return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
-        }
+        return Ok(employee);
     }
 
     [HttpGet]
     public async Task<ActionResult<List<EmployeeForSelectDto>>> GetEmployeesForSelect(string term = "")
     {
-        try
-        {
-            var employee = await _getEmployeeHandler.GetForSelectHandleAsync(term);
+        var employee = await _getEmployeeHandler.GetForSelectHandleAsync(term);
 
-            return Ok(employee);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to retrieve employee list.");
-
-            return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error");
-        }
+        return Ok(employee);
     }
 
     [HttpPost]
@@ -81,18 +63,9 @@ public class EmployeeController : ControllerBase
             return UnprocessableEntity(ModelState);
         }
 
-        try
-        {
-            await _createEmployeeHandler.HandleAsync(employeeDto);
+        await _createEmployeeHandler.HandleAsync(employeeDto);
 
-            return Created();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to create employee. Payload: {EmployeeDto}.", employeeDto);
-
-            return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error.");
-        }
+        return Created();
     }
 
     [HttpPut]
@@ -112,18 +85,9 @@ public class EmployeeController : ControllerBase
             return UnprocessableEntity(ModelState);
         }
 
-        try
-        {
-            await _updateEmployeeHandler.HandleAsync(requestDto);
+        await _updateEmployeeHandler.HandleAsync(requestDto);
 
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to update employee (ID: {EmployeeId}).", requestDto.Id);
-
-            return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error.");
-        }
+        return NoContent();
     }
 
     [HttpDelete]
@@ -136,24 +100,8 @@ public class EmployeeController : ControllerBase
             return BadRequest("Valid employee ID must be provided.");
         }
 
-        try
-        {
-            var success = await _deleteEmployeeHandler.HandleAsync(id);
+        var success = await _deleteEmployeeHandler.HandleAsync(id);
 
-            if (!success)
-            {
-                _logger.LogError("Employee not found for deletion (ID: {EmployeeId})", id);
-
-                return NotFound("Employee not found or already deleted");
-            }
-
-            return NoContent();
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to delete employee (ID: {EmployeeId})", id);
-
-            return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error.");
-        }
+        return NoContent();
     }
 }
