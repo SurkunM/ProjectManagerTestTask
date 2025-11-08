@@ -1,4 +1,6 @@
-﻿using ProjectDataManager.Contracts.Dto.EmployeeDto;
+﻿using Microsoft.Extensions.Logging;
+using ProductionChain.Contracts.Exceptions;
+using ProjectDataManager.Contracts.Dto.ProjectTaskDto;
 using ProjectDataManager.Contracts.IRepositories;
 using ProjectDataManager.Contracts.IUnitOfWork;
 using ProjectDataManager.Contracts.MappingExtensions;
@@ -9,17 +11,36 @@ public class UpdateProjectTaskHandler
 {
     private readonly IUnitOfWork _unitOfWork;
 
-    public UpdateProjectTaskHandler(IUnitOfWork unitOfWork)
+    private readonly ILogger<UpdateProjectTaskHandler> _logger;
+
+    public UpdateProjectTaskHandler(IUnitOfWork unitOfWork, ILogger<UpdateProjectTaskHandler> logger)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
     }
 
-    public async Task HandleAsync(EmployeeCreateUpdateDto requestDto)
+    public async Task HandleAsync(ProjectTaskCreateUpdateDto requestDto)
     {
-        var employeesRepository = _unitOfWork.GetRepository<IEmployeesRepository>();
+        var projectTasksRepository = _unitOfWork.GetRepository<IProjectTasksRepository>();
+        var projectRepository = _unitOfWork.GetRepository<IProjectsRepository>();
+        var employeeRepository = _unitOfWork.GetRepository<IEmployeesRepository>();
 
-        employeesRepository.Update(requestDto.ToModel());
+        try
+        {
+            var project = await projectRepository.FindProjectByIdAsync(requestDto.ProjectId) ?? throw new NotFoundException("Project not found");
+            var author = await employeeRepository.FindEmployeeByIdAsync(requestDto.AuthorId) ?? throw new NotFoundException("Author not found");
+            var executor = await employeeRepository.FindEmployeeByIdAsync(requestDto.ExecutorId) ?? throw new NotFoundException("Executor not found");
 
-        await _unitOfWork.SaveAsync();
+            projectTasksRepository.Update(requestDto.ToModel(project, executor, author));
+
+            await _unitOfWork.SaveAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Transaction rolled back");
+
+            throw;
+        }
     }
 }

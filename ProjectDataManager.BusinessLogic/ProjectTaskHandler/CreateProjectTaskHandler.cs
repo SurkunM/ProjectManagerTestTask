@@ -1,4 +1,6 @@
-﻿using ProjectDataManager.Contracts.Dto.ProjectTaskDto;
+﻿using Microsoft.Extensions.Logging;
+using ProductionChain.Contracts.Exceptions;
+using ProjectDataManager.Contracts.Dto.ProjectTaskDto;
 using ProjectDataManager.Contracts.IRepositories;
 using ProjectDataManager.Contracts.IUnitOfWork;
 using ProjectDataManager.Contracts.MappingExtensions;
@@ -9,9 +11,12 @@ public class CreateProjectTaskHandler
 {
     private readonly IUnitOfWork _unitOfWork;
 
-    public CreateProjectTaskHandler(IUnitOfWork unitOfWork)
+    private readonly ILogger<CreateProjectTaskHandler> _logger;
+
+    public CreateProjectTaskHandler(IUnitOfWork unitOfWork, ILogger<CreateProjectTaskHandler> logger)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     public async Task<bool> HandleAsync(ProjectTaskCreateUpdateDto requestDto)
@@ -24,16 +29,9 @@ public class CreateProjectTaskHandler
         {
             _unitOfWork.BeginTransaction();
 
-            var project = await projectRepository.FindProjectByIdAsync(requestDto.ProjectId);
-            var author = await employeeRepository.FindEmployeeByIdAsync(requestDto.AuthorId);
-            var executor = await employeeRepository.FindEmployeeByIdAsync(requestDto.ExecutorId);
-
-            if (project is null || executor is null || author is null)
-            {
-                _unitOfWork.RollbackTransaction();
-
-                return false;
-            }
+            var project = await projectRepository.FindProjectByIdAsync(requestDto.ProjectId) ?? throw new NotFoundException("Project not found");
+            var author = await employeeRepository.FindEmployeeByIdAsync(requestDto.AuthorId) ?? throw new NotFoundException("Author not found");
+            var executor = await employeeRepository.FindEmployeeByIdAsync(requestDto.ExecutorId) ?? throw new NotFoundException("Executor not found");
 
             await projectTasksRepository.CreateAsync(requestDto.ToModel(project, executor, author));
 
@@ -43,6 +41,8 @@ public class CreateProjectTaskHandler
         }
         catch (Exception)
         {
+            _logger.LogError("Transaction rolled back");
+
             _unitOfWork.RollbackTransaction();
 
             throw;
