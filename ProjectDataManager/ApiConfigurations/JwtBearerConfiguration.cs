@@ -6,11 +6,11 @@ using ProjectDataManager.Model;
 using System.Security.Claims;
 using System.Text;
 
-namespace ProjectDataManager.AppConfigurations;
+namespace ProjectDataManager.ApiConfigurations;
 
 public static class JwtBearerConfiguration
 {
-    public static void ConfigureAppJwtBearer(this IServiceCollection services, IConfiguration configuration)
+    public static void ConfigureApiJwtBearer(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddAuthentication(options =>
         {
@@ -36,7 +36,7 @@ public static class JwtBearerConfiguration
         });
     }
 
-    public static void ConfigureAppIdentity(this IServiceCollection services)
+    public static void ConfigureApiIdentity(this IServiceCollection services)
     {
         services.AddIdentity<Employee, IdentityRole<int>>(options =>
         {

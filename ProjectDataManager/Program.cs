@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using ProjectDataManager.AppConfigurations;
+using ProjectDataManager.ApiConfigurations;
 using ProjectDataManager.Middleware;
 
 namespace ProjectDataManager;
@@ -12,16 +12,16 @@ public class Program
 
         var connectionString = builder.Configuration.GetConnectionString("ProjectDataManagerConnection");
 
-        builder.Services.ConfigureAppDbContext(connectionString);
+        builder.Services.ConfigureApiDbContext(connectionString);
 
-        builder.Services.ConfigureAppIdentity();
-        builder.Services.ConfigureAppJwtBearer(builder.Configuration);
+        builder.Services.ConfigureApiIdentity();
+        builder.Services.ConfigureApiJwtBearer(builder.Configuration);
 
         builder.Services.AddControllersWithViews();
 
-        builder.Services.ConfigureApDIServices();
-        builder.Services.ConfigureAppDIRepositories();
-        builder.Services.ConfigureAppDIHandlers();
+        builder.Services.ConfigureApiDIServices();
+        builder.Services.ConfigureApiDIRepositories();
+        builder.Services.ConfigureApiDIHandlers();
 
         var app = builder.Build();
 
@@ -31,13 +31,13 @@ public class Program
             app.UseHsts();
         }
 
-        app.InitializeAppDb();
+        app.InitializeApiDb();
 
         app.UseHttpsRedirection();
         app.UseDefaultFiles();
         app.UseStaticFiles();
 
-        app.UseMiddleware<ExceptionMiddleware>();
+        app.UseMiddleware<ApiExceptionsMiddleware>();
         app.UseRouting();
 
         app.UseAuthorization();

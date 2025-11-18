@@ -1,15 +1,15 @@
-﻿using ProductionChain.Contracts.Exceptions;
+﻿using ProjectDataManager.Contracts.Exceptions;
 using System.Text.Json;
 
 namespace ProjectDataManager.Middleware;
 
-public class ExceptionMiddleware
+public class ApiExceptionsMiddleware
 {
     private readonly RequestDelegate _next;
 
     private readonly ILogger _logger;
 
-    public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger)
+    public ApiExceptionsMiddleware(RequestDelegate next, ILogger<ApiExceptionsMiddleware> logger)
     {
         _next = next ?? throw new ArgumentNullException(nameof(next));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -34,12 +34,12 @@ public class ExceptionMiddleware
         var (statusCode, message) = exception switch
         {
             NotFoundException => (StatusCodes.Status404NotFound, exception.Message),
-            UnauthorizedAccessException => (StatusCodes.Status401Unauthorized, exception.Message),
+            InvalidCredentialsException => (StatusCodes.Status401Unauthorized, exception.Message),
             ForbiddenException => (StatusCodes.Status403Forbidden, exception.Message),
             InvalidStateException => (StatusCodes.Status409Conflict, exception.Message),
             InsufficientComponentsException => (StatusCodes.Status400BadRequest, exception.Message),
             UpdateStateException => (StatusCodes.Status422UnprocessableEntity, exception.Message),
-            AccountNotCreatedException => (StatusCodes.Status409Conflict, exception.Message),
+            RegistrationFailedException => (StatusCodes.Status409Conflict, exception.Message),
             _ => (StatusCodes.Status500InternalServerError, "Internal server error.")
         };
 

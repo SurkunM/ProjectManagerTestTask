@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ProjectDataManager.DataAccess;
 
-namespace ProjectDataManager.AppConfigurations;
+namespace ProjectDataManager.ApiConfigurations;
 
-public static class AppDbConfiguration
+public static class DbContextConfiguration
 {
-    public static void ConfigureAppDbContext(this IServiceCollection services, string? connectionString)
+    public static void ConfigureApiDbContext(this IServiceCollection services, string? connectionString)
     {
         ArgumentNullException.ThrowIfNull(connectionString);
 
@@ -17,7 +17,7 @@ public static class AppDbConfiguration
         }, ServiceLifetime.Scoped, ServiceLifetime.Transient);
     }
 
-    public static void InitializeAppDb(this WebApplication app)
+    public static void InitializeApiDb(this WebApplication app)
     {
         using var scope = app.Services.CreateScope();
 
