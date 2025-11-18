@@ -1,9 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ProjectDataManager.Model;
 
 namespace ProjectDataManager.DataAccess;
 
-public class ProjectDataManagerDbContext : DbContext
+public class ProjectDataManagerDbContext : IdentityDbContext<Employee, IdentityRole<int>, int>
 {
     public virtual DbSet<Employee> Employees { get; set; }
 
@@ -17,6 +19,15 @@ public class ProjectDataManagerDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<IdentityRole<int>>().ToTable("Roles");
+        modelBuilder.Entity<IdentityUserRole<int>>().ToTable("EmployeeRoles");
+        modelBuilder.Entity<IdentityUserClaim<int>>().ToTable("Claims");
+        modelBuilder.Entity<IdentityUserLogin<int>>().ToTable("Logins");
+        modelBuilder.Entity<IdentityRoleClaim<int>>().ToTable("RoleClaims");
+        modelBuilder.Entity<IdentityUserToken<int>>().ToTable("Tokens");
+
         modelBuilder.Entity<Employee>(b =>
         {
             b.Property(b => b.FirstName)
@@ -29,7 +40,15 @@ public class ProjectDataManagerDbContext : DbContext
                 .HasMaxLength(50);
 
             b.Property(b => b.Email)
+                .IsRequired()
                 .HasMaxLength(50);
+
+            b.HasOne(e => e.Manager)
+                .WithMany(e => e.Subordinates)
+                .HasForeignKey(e => e.ManagerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.ToTable("Employee");
         });
 
         modelBuilder.Entity<Project>(b =>

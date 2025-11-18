@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
-using ProductionChain.Contracts.Exceptions;
 using ProjectDataManager.Contracts.Dto.ProjectDto;
+using ProjectDataManager.Contracts.Exceptions;
 using ProjectDataManager.Contracts.IRepositories;
 using ProjectDataManager.Contracts.IUnitOfWork;
 using ProjectDataManager.Contracts.MappingExtensions;
@@ -28,13 +28,7 @@ public class CreateProjectHandler
         {
             _unitOfWork.BeginTransaction();
 
-            var manager = await employeeRepository.FindEmployeeByIdAsync(projectDto.ProjectManagerId);
-
-            if (manager is null)
-            {
-                throw new NotFoundException("Project Manager not found or already deleted");
-            }
-
+            var manager = await employeeRepository.FindEmployeeByIdAsync(projectDto.ProjectManagerId) ?? throw new NotFoundException("Project Manager not found or already deleted");
             var projectModel = projectDto.ToModel(manager);
 
             await projectsRepository.CreateAsync(projectModel);

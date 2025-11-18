@@ -1,16 +1,20 @@
-﻿namespace ProjectDataManager.Model;
+﻿using Microsoft.AspNetCore.Identity;
 
-public class Employee
+namespace ProjectDataManager.Model;
+
+public class Employee : IdentityUser<int>
 {
-    public int Id { get; set; }
-
     public required string FirstName { get; set; }
 
     public required string LastName { get; set; }
 
-    public required string? MiddleName { get; set; }
+    public string? MiddleName { get; set; }
 
-    public required string Email { get; set; }
+    public int? ManagerId { get; set; }
+
+    public Employee? Manager { get; set; }
+
+    public virtual ICollection<Employee> Subordinates { get; set; } = new List<Employee>();
 
     public virtual ICollection<Project> ManagedProjects { get; set; } = new List<Project>();
 

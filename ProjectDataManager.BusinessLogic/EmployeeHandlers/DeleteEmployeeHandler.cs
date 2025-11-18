@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using ProductionChain.Contracts.Exceptions;
+using ProjectDataManager.Contracts.Exceptions;
 using ProjectDataManager.Contracts.IRepositories;
 using ProjectDataManager.Contracts.IUnitOfWork;
 
@@ -26,13 +26,7 @@ public class DeleteEmployeeHandler
         {
             _unitOfWork.BeginTransaction();
 
-            var employee = await employeesRepository.FindEmployeeByIdAsync(id);
-
-            if (employee is null)
-            {
-                throw new NotFoundException("Employee not found or already deleted");
-            }
-
+            var employee = await employeesRepository.FindEmployeeByIdAsync(id) ?? throw new NotFoundException("Employee not found or already deleted");
             employeesRepository.Delete(employee);
 
             await _unitOfWork.SaveAsync();

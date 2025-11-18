@@ -8,7 +8,7 @@ public class EmployeeResponseDto
 
     public required string LastName { get; set; }
 
-    public required string? MiddleName { get; set; }
+    public string? MiddleName { get; set; }
 
     public required string Email { get; set; }
 }

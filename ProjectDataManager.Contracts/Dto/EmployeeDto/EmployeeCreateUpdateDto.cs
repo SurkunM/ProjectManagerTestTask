@@ -15,7 +15,7 @@ public class EmployeeCreateUpdateDto
     public required string LastName { get; set; }
 
     [StringLength(50)]
-    public required string? MiddleName { get; set; }
+    public string? MiddleName { get; set; }
 
     [Required]
     [StringLength(50)]

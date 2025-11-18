@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using ProductionChain.Contracts.Exceptions;
+using ProjectDataManager.Contracts.Exceptions;
 using ProjectDataManager.Contracts.IRepositories;
 using ProjectDataManager.Contracts.IUnitOfWork;
 

@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
-using ProductionChain.Contracts.Exceptions;
+using ProjectDataManager.Contracts.Exceptions;
 using ProjectDataManager.Contracts.IRepositories;
 using ProjectDataManager.Contracts.IUnitOfWork;
 
@@ -25,13 +25,7 @@ public class DeleteProjectHandler
         {
             _unitOfWork.BeginTransaction();
 
-            var project = await projectsRepository.FindProjectByIdAsync(id);
-
-            if (project is null)
-            {
-                throw new NotFoundException("Project not found or already deleted");
-            }
-
+            var project = await projectsRepository.FindProjectByIdAsync(id) ?? throw new NotFoundException("Project not found or already deleted");
             projectsRepository.Delete(project);
 
             await _unitOfWork.SaveAsync();
