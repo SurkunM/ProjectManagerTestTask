@@ -1,4 +1,4 @@
-﻿namespace ProductionChain.Contracts.Exceptions;
+﻿namespace ProjectDataManager.Contracts.Exceptions;
 
 public class NotFoundException : Exception
 {
