@@ -12,7 +12,7 @@ public class Employee : IdentityUser<int>
 
     public int? ManagerId { get; set; }
 
-    public Employee? Manager { get; set; }
+    public virtual Employee? Manager { get; set; }
 
     public virtual ICollection<Employee> Subordinates { get; set; } = new List<Employee>();
 
