@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ProjectDataManager.BusinessLogic.ProjectTaskHandler;
 using ProjectDataManager.Contracts.Dto.ProjectTaskDto;
 
@@ -32,6 +33,7 @@ public class ProjectTaskController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Roles = "Supervisor,ProjectManager")]
     public async Task<IActionResult> GetTasks(string term)
     {
         var tasks = await _getProjectTasksHandler.HandleAsync(term);
@@ -40,6 +42,7 @@ public class ProjectTaskController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Supervisor,ProjectManager")]
     public async Task<IActionResult> CreateTask(ProjectTaskCreateUpdateDto taskCreateUpdateDto)
     {
         if (taskCreateUpdateDto is null)
@@ -62,6 +65,7 @@ public class ProjectTaskController : ControllerBase
     }
 
     [HttpPut]
+    [Authorize(Roles = "Supervisor,ProjectManager")]
     public async Task<IActionResult> UpdateTask(ProjectTaskCreateUpdateDto taskCreateUpdateDto)
     {
         if (taskCreateUpdateDto is null)
@@ -84,6 +88,7 @@ public class ProjectTaskController : ControllerBase
     }
 
     [HttpDelete]
+    [Authorize(Roles = "Supervisor,ProjectManager")]
     public async Task<IActionResult> DeleteTask(int id)
     {
         if (id <= 0)

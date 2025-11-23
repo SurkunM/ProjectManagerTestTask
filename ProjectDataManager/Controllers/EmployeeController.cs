@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ProjectDataManager.BusinessLogic.EmployeeHandlers;
 using ProjectDataManager.Contracts.Dto.EmployeeDto;
 
@@ -31,6 +32,7 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Roles = "Supervisor,ProjectManager")]
     public async Task<ActionResult<List<EmployeeResponseDto>>> GetEmployees(string term = "")
     {
         var employee = await _getEmployeeHandler.HandleAsync(term);
@@ -39,6 +41,7 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Roles = "Supervisor,ProjectManager")]
     public async Task<ActionResult<List<EmployeeForSelectDto>>> GetEmployeesForSelect(string term = "")
     {
         var employee = await _getEmployeeHandler.GetForSelectHandleAsync(term);
@@ -47,6 +50,7 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Supervisor")]
     public async Task<IActionResult> CreateEmployee(EmployeeCreateUpdateDto employeeDto)
     {
         if (employeeDto is null)
@@ -69,6 +73,7 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpPut]
+    [Authorize(Roles = "Supervisor")]
     public async Task<IActionResult> UpdateEmployee(EmployeeCreateUpdateDto requestDto)
     {
         if (requestDto is null)
@@ -91,6 +96,7 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpDelete]
+    [Authorize(Roles = "Supervisor")]
     public async Task<IActionResult> DeleteEmployee([FromBody] int id)
     {
         if (id <= 0)

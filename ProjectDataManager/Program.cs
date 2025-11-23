@@ -1,12 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using ProjectDataManager.ApiConfigurations;
+using ProjectDataManager.Contracts.Settings;
 using ProjectDataManager.Middleware;
 
 namespace ProjectDataManager;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,7 @@ public class Program
         builder.Services.ConfigureApiJwtBearer(builder.Configuration);
 
         builder.Services.AddControllersWithViews();
+        builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 
         builder.Services.ConfigureApiDIServices();
         builder.Services.ConfigureApiDIRepositories();
@@ -31,7 +33,7 @@ public class Program
             app.UseHsts();
         }
 
-        app.InitializeApiDb();
+        await app.InitializeApiDb();
 
         app.UseHttpsRedirection();
         app.UseDefaultFiles();

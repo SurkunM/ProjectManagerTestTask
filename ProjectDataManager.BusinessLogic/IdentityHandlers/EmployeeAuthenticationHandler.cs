@@ -24,7 +24,7 @@ public class EmployeeAuthenticationHandler
 
     public async Task<EmployeeLoginResponse> LoginHandleAsync(EmployeeLoginRequest loginRequest)
     {
-        var employee = await _userManager.FindByEmailAsync(loginRequest.Email) ?? throw new NotFoundException("Employee not found");
+        var employee = await _userManager.FindByNameAsync(loginRequest.UserName) ?? throw new NotFoundException("Employee not found");
 
         var success = await _userManager.CheckPasswordAsync(employee, loginRequest.Password);
 

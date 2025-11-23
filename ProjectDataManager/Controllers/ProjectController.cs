@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProjectDataManager.BusinessLogic.ProjectHandlers;
 using ProjectDataManager.Contracts.Dto.ProjectDto;
@@ -39,6 +40,7 @@ public class ProjectController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Roles = "Supervisor,ProjectManager")]
     public async Task<ActionResult<ProjectCreateUpdateDto>> GetProjects([FromQuery] GetProjectsQueryParameters queryParameters)
     {
         if (!ModelState.IsValid)
@@ -54,6 +56,7 @@ public class ProjectController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Supervisor,ProjectManager")]
     public async Task<IActionResult> CreateProject(ProjectCreateUpdateDto projectDto)
     {
         if (projectDto is null)
@@ -76,6 +79,7 @@ public class ProjectController : ControllerBase
     }
 
     [HttpPut]
+    [Authorize(Roles = "Supervisor,ProjectManager")]
     public async Task<IActionResult> UpdateProject(ProjectCreateUpdateDto projectDto)
     {
         if (projectDto is null)
@@ -98,6 +102,7 @@ public class ProjectController : ControllerBase
     }
 
     [HttpDelete]
+    [Authorize(Roles = "Supervisor,ProjectManager")]
     public async Task<IActionResult> DeleteProject([FromBody] int id)
     {
         if (id <= 0)
@@ -113,6 +118,7 @@ public class ProjectController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Supervisor,ProjectManager")]
     public async Task<IActionResult> AddEmployeesToProject(ProjectRemoveAddEmployeesDto addEmployeesDto)
     {
         if (addEmployeesDto.ProjectId <= 0)
@@ -128,6 +134,7 @@ public class ProjectController : ControllerBase
     }
 
     [HttpDelete]
+    [Authorize(Roles = "Supervisor,ProjectManager")]
     public async Task<IActionResult> RemoveEmployeesFromProject(ProjectRemoveAddEmployeesDto removeEmployeesDto)
     {
         if (removeEmployeesDto.ProjectId <= 0)
