@@ -1,4 +1,5 @@
-﻿using ProjectDataManager.Contracts.Dto.EmployeeDto;
+﻿using ProjectDataManager.Contracts.Dto.EmployeeDto.Requests;
+using ProjectDataManager.Contracts.Dto.EmployeeDto.Responses;
 using ProjectDataManager.Contracts.Dto.Requests;
 using ProjectDataManager.Model;
 

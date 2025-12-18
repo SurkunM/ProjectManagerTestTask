@@ -1,5 +1,7 @@
-﻿using ProjectDataManager.Contracts.Dto.EmployeeDto;
+﻿using ProjectDataManager.Contracts.Dto.EmployeeDto.Requests;
+using ProjectDataManager.Contracts.Dto.EmployeeDto.Responses;
 using ProjectDataManager.Contracts.IRepositories;
+using ProjectDataManager.Contracts.IServices;
 using ProjectDataManager.Contracts.IUnitOfWork;
 
 namespace ProjectDataManager.BusinessLogic.EmployeeHandlers;
@@ -15,15 +17,15 @@ public class GetEmployeeHandle
 
     public Task<List<EmployeeResponseDto>> HandleAsync(string term)
     {
-        var employeesRepository = _unitOfWork.GetRepository<IEmployeesRepository>();
+        var employeeService = _unitOfWork.GetRepository<IEmployeeService>();
 
-        return employeesRepository.GetEmployeesAsync(term);
+        return employeeService.GetEmployeesAsync(term);
     }
 
     public Task<List<EmployeeForSelectDto>> GetForSelectHandleAsync(string term)
     {
-        var employeesRepository = _unitOfWork.GetRepository<IEmployeesRepository>();
+        var employeeService = _unitOfWork.GetRepository<IEmployeeService>();
 
-        return employeesRepository.GetEmployeesForSelectAsync(term);
+        return employeeService.GetEmployeesForSelectAsync(term);
     }
 }

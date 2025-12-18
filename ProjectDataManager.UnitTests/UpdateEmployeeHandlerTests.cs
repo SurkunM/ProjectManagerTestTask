@@ -1,6 +1,6 @@
 ﻿using Moq;
 using ProjectDataManager.BusinessLogic.EmployeeHandlers;
-using ProjectDataManager.Contracts.Dto.EmployeeDto;
+using ProjectDataManager.Contracts.Dto.EmployeeDto.Requests;
 using ProjectDataManager.Contracts.IRepositories;
 using ProjectDataManager.Contracts.IUnitOfWork;
 using ProjectDataManager.Model;

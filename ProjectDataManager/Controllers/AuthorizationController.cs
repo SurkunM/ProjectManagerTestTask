@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProjectDataManager.BusinessLogic.IdentityHandlers;
-using ProjectDataManager.Contracts.Dto.Requests;
+using ProjectDataManager.Contracts.Dto.EmployeeDto.Requests;
 
 namespace ProjectDataManager.Controllers;
 

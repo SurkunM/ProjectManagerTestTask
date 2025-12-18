@@ -42,6 +42,7 @@ public class Program
         app.UseMiddleware<ApiExceptionsMiddleware>();
         app.UseRouting();
 
+        app.UseAuthentication();
         app.UseAuthorization();
 
         app.MapControllers();

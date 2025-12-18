@@ -1,5 +1,6 @@
-﻿using ProjectDataManager.Contracts.Dto.EmployeeDto;
-using ProjectDataManager.Contracts.IRepositories;
+﻿using ProjectDataManager.Contracts.Dto.EmployeeDto.Requests;
+using ProjectDataManager.Contracts.Exceptions;
+using ProjectDataManager.Contracts.IServices;
 using ProjectDataManager.Contracts.IUnitOfWork;
 using ProjectDataManager.Contracts.MappingExtensions;
 
@@ -16,10 +17,13 @@ public class CreateEmployeeHandler
 
     public async Task HandleAsync(EmployeeCreateUpdateDto requestDto)
     {
-        var employeesRepository = _unitOfWork.GetRepository<IEmployeesRepository>();
+        var employeeService = _unitOfWork.GetRepository<IEmployeeService>();
 
-        await employeesRepository.CreateAsync(requestDto.ToModel());
+        var result = await employeeService.CreateAsyncAndSaveChanges(requestDto.ToModel());
 
-        await _unitOfWork.SaveAsync();
+        if (!result.Succeeded)
+        {
+            throw new OperationFailedException($"Create failed. {result.Errors}");
+        }
     }
 }

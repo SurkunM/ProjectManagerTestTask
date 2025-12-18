@@ -1,7 +1,9 @@
-﻿using ProjectDataManager.Contracts.Dto.EmployeeDto;
-using ProjectDataManager.Contracts.IRepositories;
+﻿using Microsoft.AspNetCore.Identity;
+using ProjectDataManager.Contracts.Dto.EmployeeDto.Requests;
+using ProjectDataManager.Contracts.Exceptions;
+using ProjectDataManager.Contracts.IServices;
 using ProjectDataManager.Contracts.IUnitOfWork;
-using ProjectDataManager.Contracts.MappingExtensions;
+using ProjectDataManager.Model;
 
 namespace ProjectDataManager.BusinessLogic.EmployeeHandlers;
 
@@ -9,17 +11,23 @@ public class UpdateEmployeeHandler
 {
     private readonly IUnitOfWork _unitOfWork;
 
-    public UpdateEmployeeHandler(IUnitOfWork unitOfWork)
+    private readonly UserManager<Employee> _userManager;
+
+    public UpdateEmployeeHandler(IUnitOfWork unitOfWork, UserManager<Employee> userManager)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
     }
 
     public async Task HandleAsync(EmployeeCreateUpdateDto requestDto)
     {
-        var employeesRepository = _unitOfWork.GetRepository<IEmployeesRepository>();
+        var employeeService = _unitOfWork.GetService<IEmployeeService>();
 
-        employeesRepository.Update(requestDto.ToModel());
+        var result = await employeeService.UpdateAndSaveChanges(requestDto);
 
-        await _unitOfWork.SaveAsync();
+        if (!result.Succeeded)
+        {
+            throw new OperationFailedException($"Update failed. {result.Errors}");
+        }
     }
 }

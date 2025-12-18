@@ -8,6 +8,7 @@ using ProjectDataManager.Contracts.IServices;
 using ProjectDataManager.Contracts.IUnitOfWork;
 using ProjectDataManager.DataAccess;
 using ProjectDataManager.DataAccess.Repositories;
+using ProjectDataManager.DataAccess.Services;
 using ProjectDataManager.DataAccess.UnitOfWork;
 
 namespace ProjectDataManager.ApiConfigurations;
@@ -24,6 +25,7 @@ public static class DependenciesConfiguration
     {
         services.AddScoped<DbContext>(provider => provider.GetRequiredService<ProjectDataManagerDbContext>());
         services.AddTransient<IUnitOfWork, UnitOfWork>();
+        services.AddTransient<IEmployeeService, EmployeeService>();
     }
 
     public static void ConfigureApiDIHandlers(this IServiceCollection services)

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using ProjectDataManager.Contracts.Exceptions;
-using ProjectDataManager.Contracts.IRepositories;
+using ProjectDataManager.Contracts.IServices;
 using ProjectDataManager.Contracts.IUnitOfWork;
 
 namespace ProjectDataManager.BusinessLogic.EmployeeHandlers;
@@ -18,28 +18,17 @@ public class DeleteEmployeeHandler
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public async Task<bool> HandleAsync(int id)
+    public async Task HandleAsync(int id)
     {
-        var employeesRepository = _unitOfWork.GetRepository<IEmployeesRepository>();
+        var employeeService = _unitOfWork.GetRepository<IEmployeeService>();
 
-        try
+        var employee = await employeeService.FindEmployeeByIdAsync(id) ?? throw new NotFoundException("Delete failed. Employee not found");
+
+        var result = await employeeService.DeleteAndSaveChanges(employee);
+
+        if (!result.Succeeded)
         {
-            _unitOfWork.BeginTransaction();
-
-            var employee = await employeesRepository.FindEmployeeByIdAsync(id) ?? throw new NotFoundException("Employee not found or already deleted");
-            employeesRepository.Delete(employee);
-
-            await _unitOfWork.SaveAsync();
-
-            return true;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Transaction rolled back");
-
-            _unitOfWork.RollbackTransaction();
-
-            throw;
+            throw new OperationFailedException($"Delete failed. {result.Errors}");
         }
     }
 }

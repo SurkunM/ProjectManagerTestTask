@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProjectDataManager.BusinessLogic.EmployeeHandlers;
-using ProjectDataManager.Contracts.Dto.EmployeeDto;
+using ProjectDataManager.Contracts.Dto.EmployeeDto.Requests;
+using ProjectDataManager.Contracts.Dto.EmployeeDto.Responses;
+using System.Threading.Tasks;
 
 namespace ProjectDataManager.Controllers;
 
@@ -106,7 +108,7 @@ public class EmployeeController : ControllerBase
             return BadRequest("Valid employee ID must be provided.");
         }
 
-        var success = await _deleteEmployeeHandler.HandleAsync(id);
+        await _deleteEmployeeHandler.HandleAsync(id);
 
         return NoContent();
     }

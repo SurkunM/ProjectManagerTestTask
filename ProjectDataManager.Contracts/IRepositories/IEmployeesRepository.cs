@@ -1,4 +1,5 @@
-﻿using ProjectDataManager.Contracts.Dto.EmployeeDto;
+﻿using ProjectDataManager.Contracts.Dto.EmployeeDto.Requests;
+using ProjectDataManager.Contracts.Dto.EmployeeDto.Responses;
 using ProjectDataManager.Model;
 
 namespace ProjectDataManager.Contracts.IRepositories;

@@ -28,6 +28,11 @@ public class UnitOfWork : IUnitOfWork
         return _serviceProvider.GetRequiredService<T>();
     }
 
+    public T GetService<T>() where T : class
+    {
+        return _serviceProvider.GetRequiredService<T>();
+    }
+
     public void BeginTransaction()
     {
         ThrowExceptionIfDisposed();
