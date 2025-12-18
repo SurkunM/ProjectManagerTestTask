@@ -1,7 +1,7 @@
 ﻿using ProjectDataManager.Model.Enums;
 using System.ComponentModel.DataAnnotations;
 
-namespace ProjectDataManager.Contracts.Dto.Requests;
+namespace ProjectDataManager.Contracts.Dto.EmployeeDto.Requests;
 
 public class EmployeeRegisterRequest
 {

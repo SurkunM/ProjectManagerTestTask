@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
-using ProjectDataManager.Contracts.Dto.Requests;
+using ProjectDataManager.Contracts.Dto.EmployeeDto.Requests;
 using ProjectDataManager.Contracts.Exceptions;
 using ProjectDataManager.Contracts.IRepositories;
 using ProjectDataManager.Contracts.IUnitOfWork;

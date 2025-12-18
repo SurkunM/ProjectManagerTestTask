@@ -1,4 +1,4 @@
-﻿namespace ProjectDataManager.Contracts.Dto.Requests;
+﻿namespace ProjectDataManager.Contracts.Dto.EmployeeDto.Requests;
 
 public class EmployeeLoginRequest
 {

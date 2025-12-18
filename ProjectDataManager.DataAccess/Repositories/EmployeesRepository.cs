@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ProjectDataManager.Contracts.Dto.EmployeeDto;
+using ProjectDataManager.Contracts.Dto.EmployeeDto.Requests;
+using ProjectDataManager.Contracts.Dto.EmployeeDto.Responses;
 using ProjectDataManager.Contracts.IRepositories;
 using ProjectDataManager.DataAccess.Repositories.BaseAbstractions;
 using ProjectDataManager.Model;

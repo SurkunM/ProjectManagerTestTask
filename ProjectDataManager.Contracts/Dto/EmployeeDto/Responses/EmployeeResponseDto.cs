@@ -1,4 +1,4 @@
-﻿namespace ProjectDataManager.Contracts.Dto.EmployeeDto;
+﻿namespace ProjectDataManager.Contracts.Dto.EmployeeDto.Responses;
 
 public class EmployeeResponseDto
 {

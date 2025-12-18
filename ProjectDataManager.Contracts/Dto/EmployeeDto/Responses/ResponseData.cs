@@ -1,4 +1,4 @@
-﻿namespace ProjectDataManager.Contracts.Dto.Responses;
+﻿namespace ProjectDataManager.Contracts.Dto.EmployeeDto.Responses;
 
 public class ResponseData
 {
