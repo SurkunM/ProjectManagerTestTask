@@ -15,9 +15,9 @@ public interface IEmployeeService
 
     Task<List<EmployeeForSelectDto>> GetEmployeesForSelectAsync(string term);
 
-    Task<IdentityResult> CreateAsyncAndSaveChanges(Employee entity);
+    Task<IdentityResult> CreateAsyncAndSaveChanges(Employee entity, string password);
 
-    Task<IdentityResult> UpdateAndSaveChanges(EmployeeCreateUpdateDto dto);
+    Task<IdentityResult> UpdateAndSaveChanges(EmployeeUpdateRequest dto);
 
     Task<IdentityResult> DeleteAndSaveChanges(Employee entity);
 }

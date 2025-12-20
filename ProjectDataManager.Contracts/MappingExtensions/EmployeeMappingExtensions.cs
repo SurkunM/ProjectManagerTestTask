@@ -1,17 +1,17 @@
 ﻿using ProjectDataManager.Contracts.Dto.EmployeeDto.Requests;
 using ProjectDataManager.Contracts.Dto.EmployeeDto.Responses;
-using ProjectDataManager.Contracts.Dto.Requests;
 using ProjectDataManager.Model;
 
 namespace ProjectDataManager.Contracts.MappingExtensions;
 
 public static class EmployeeMappingExtensions
 {
-    public static Employee ToModel(this EmployeeCreateUpdateDto crateUpdateDto)
+    public static Employee ToModel(this EmployeeCreateRequest crateUpdateDto)
     {
         return new Employee
         {
             Id = crateUpdateDto.Id,
+            UserName = crateUpdateDto.UserName,
             FirstName = crateUpdateDto.FirstName,
             LastName = crateUpdateDto.LastName,
             MiddleName = crateUpdateDto.MiddleName,

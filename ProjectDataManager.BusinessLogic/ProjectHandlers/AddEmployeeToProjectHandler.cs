@@ -26,13 +26,8 @@ public class AddEmployeeToProjectHandler
         {
             _unitOfWork.BeginTransaction();
 
-            var project = await projectsRepository.FindProjectByIdAsync(projectId);
+            var project = await projectsRepository.FindProjectByIdAsync(projectId) ?? throw new NotFoundException("Project not found");
             var employees = await employeesRepository.FindEmployeesByIdAsync(employeesId);
-
-            if (project is null)
-            {
-                throw new NotFoundException("Project not found");
-            }
 
             if (employees.Count == 0)
             {

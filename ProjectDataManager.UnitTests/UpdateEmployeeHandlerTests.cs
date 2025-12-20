@@ -29,7 +29,7 @@ public class UpdateEmployeeHandlerTests
             .Setup(uow => uow.GetRepository<IEmployeesRepository>())
             .Returns(employeesRepositoryMock.Object);
 
-        await _updateEmployeeHandler.HandleAsync(Mock.Of<EmployeeCreateUpdateDto>());
+        await _updateEmployeeHandler.HandleAsync(Mock.Of<EmployeeCreateRequest>());
 
         employeesRepositoryMock.Verify(r => r.Update(It.IsAny<Employee>()), Times.Once);
         _uowMock.Verify(uow => uow.SaveAsync(), Times.Once);

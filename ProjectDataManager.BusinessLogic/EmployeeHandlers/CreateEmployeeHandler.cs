@@ -15,15 +15,17 @@ public class CreateEmployeeHandler
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
     }
 
-    public async Task HandleAsync(EmployeeCreateUpdateDto requestDto)
+    public async Task HandleAsync(EmployeeCreateRequest requestDto)
     {
         var employeeService = _unitOfWork.GetRepository<IEmployeeService>();
 
-        var result = await employeeService.CreateAsyncAndSaveChanges(requestDto.ToModel());
+        var result = await employeeService.CreateAsyncAndSaveChanges(requestDto.ToModel(), requestDto.Password);
 
         if (!result.Succeeded)
         {
-            throw new OperationFailedException($"Create failed. {result.Errors}");
+            var errorsMassage = string.Join("; ", result.Errors.Select(e => e.Description));
+
+            throw new OperationFailedException($"Create failed. {errorsMassage}");
         }
     }
 }

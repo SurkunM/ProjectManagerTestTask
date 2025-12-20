@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using ProjectDataManager.Contracts.Dto.EmployeeDto.Requests;
 using ProjectDataManager.Contracts.Dto.EmployeeDto.Responses;
-using ProjectDataManager.Contracts.Dto.Responses;
 using ProjectDataManager.Contracts.Exceptions;
 using ProjectDataManager.Contracts.IServices;
 using ProjectDataManager.Model;

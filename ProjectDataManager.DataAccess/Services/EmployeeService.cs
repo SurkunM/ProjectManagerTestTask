@@ -67,9 +67,9 @@ public class EmployeeService : IEmployeeService
             .ToListAsync();
     }
 
-    public Task<IdentityResult> CreateAsyncAndSaveChanges(Employee entity)
+    public Task<IdentityResult> CreateAsyncAndSaveChanges(Employee entity, string password)
     {
-        return _userManager.CreateAsync(entity);
+        return _userManager.CreateAsync(entity, password);
     }
 
     public Task<IdentityResult> DeleteAndSaveChanges(Employee entity)
@@ -77,7 +77,7 @@ public class EmployeeService : IEmployeeService
         return _userManager.DeleteAsync(entity);
     }
 
-    public async Task<IdentityResult> UpdateAndSaveChanges(EmployeeCreateUpdateDto dto)
+    public async Task<IdentityResult> UpdateAndSaveChanges(EmployeeUpdateRequest dto)
     {
         var employee = await _userManager.FindByIdAsync(dto.Id.ToString()) ?? throw new NotFoundException("Employee not found");
 

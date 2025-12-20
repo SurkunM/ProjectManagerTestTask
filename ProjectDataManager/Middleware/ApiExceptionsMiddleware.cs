@@ -40,6 +40,8 @@ public class ApiExceptionsMiddleware
             InsufficientComponentsException => (StatusCodes.Status400BadRequest, exception.Message),
             UpdateStateException => (StatusCodes.Status422UnprocessableEntity, exception.Message),
             RegistrationFailedException => (StatusCodes.Status409Conflict, exception.Message),
+            InvalidRoleException => (StatusCodes.Status409Conflict, exception.Message),
+            OperationFailedException => (StatusCodes.Status500InternalServerError, exception.Message),
             _ => (StatusCodes.Status500InternalServerError, "Internal server error.")
         };
 

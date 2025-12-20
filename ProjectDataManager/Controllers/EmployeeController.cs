@@ -53,7 +53,7 @@ public class EmployeeController : ControllerBase
 
     [HttpPost]
     [Authorize(Roles = "Supervisor")]
-    public async Task<IActionResult> CreateEmployee(EmployeeCreateUpdateDto employeeDto)
+    public async Task<IActionResult> CreateEmployee(EmployeeCreateRequest employeeDto)
     {
         if (employeeDto is null)
         {
@@ -76,7 +76,7 @@ public class EmployeeController : ControllerBase
 
     [HttpPut]
     [Authorize(Roles = "Supervisor")]
-    public async Task<IActionResult> UpdateEmployee(EmployeeCreateUpdateDto requestDto)
+    public async Task<IActionResult> UpdateEmployee(EmployeeUpdateRequest requestDto)
     {
         if (requestDto is null)
         {

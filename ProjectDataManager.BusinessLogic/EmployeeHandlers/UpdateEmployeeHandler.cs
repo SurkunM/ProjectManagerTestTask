@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity;
-using ProjectDataManager.Contracts.Dto.EmployeeDto.Requests;
+﻿using ProjectDataManager.Contracts.Dto.EmployeeDto.Requests;
 using ProjectDataManager.Contracts.Exceptions;
 using ProjectDataManager.Contracts.IServices;
 using ProjectDataManager.Contracts.IUnitOfWork;
-using ProjectDataManager.Model;
 
 namespace ProjectDataManager.BusinessLogic.EmployeeHandlers;
 
@@ -11,15 +9,12 @@ public class UpdateEmployeeHandler
 {
     private readonly IUnitOfWork _unitOfWork;
 
-    private readonly UserManager<Employee> _userManager;
-
-    public UpdateEmployeeHandler(IUnitOfWork unitOfWork, UserManager<Employee> userManager)
+    public UpdateEmployeeHandler(IUnitOfWork unitOfWork)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
-        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
     }
 
-    public async Task HandleAsync(EmployeeCreateUpdateDto requestDto)
+    public async Task HandleAsync(EmployeeUpdateRequest requestDto)
     {
         var employeeService = _unitOfWork.GetService<IEmployeeService>();
 
@@ -27,6 +22,8 @@ public class UpdateEmployeeHandler
 
         if (!result.Succeeded)
         {
+            var errors = string.Join("; ", result.Errors.Select(e => e.Description));
+
             throw new OperationFailedException($"Update failed. {result.Errors}");
         }
     }

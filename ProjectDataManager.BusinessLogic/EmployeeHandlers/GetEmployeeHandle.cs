@@ -1,6 +1,5 @@
 ﻿using ProjectDataManager.Contracts.Dto.EmployeeDto.Requests;
 using ProjectDataManager.Contracts.Dto.EmployeeDto.Responses;
-using ProjectDataManager.Contracts.IRepositories;
 using ProjectDataManager.Contracts.IServices;
 using ProjectDataManager.Contracts.IUnitOfWork;
 
