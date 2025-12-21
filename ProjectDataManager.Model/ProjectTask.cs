@@ -1,4 +1,6 @@
-﻿namespace ProjectDataManager.Model;
+﻿using ProjectDataManager.Model.Enums;
+
+namespace ProjectDataManager.Model;
 
 public class ProjectTask
 {
@@ -18,7 +20,7 @@ public class ProjectTask
 
     public virtual required Employee Executor { get; set; }
 
-    public TaskStatus Status { get; set; }
+    public TaskStatusEnum Status { get; set; }
 
     public string? Comment { get; set; }
 

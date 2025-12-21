@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ProjectDataManager.Model.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace ProjectDataManager.Contracts.Dto.ProjectTaskDto;
 
@@ -19,7 +20,7 @@ public class ProjectTaskCreateUpdateDto
     [Range(1, int.MaxValue)]
     public int ExecutorId { get; set; }
 
-    public TaskStatus Status { get; set; }
+    public TaskStatusEnum Status { get; set; }
 
     public string? Comment { get; set; }
 

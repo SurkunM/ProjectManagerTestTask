@@ -2,6 +2,7 @@
 using ProjectDataManager.BusinessLogic.EmployeeHandlers;
 using ProjectDataManager.BusinessLogic.IdentityHandlers;
 using ProjectDataManager.BusinessLogic.ProjectHandlers;
+using ProjectDataManager.BusinessLogic.ProjectTaskHandler;
 using ProjectDataManager.BusinessLogic.Services;
 using ProjectDataManager.Contracts.IRepositories;
 using ProjectDataManager.Contracts.IServices;
@@ -18,6 +19,7 @@ public static class DependenciesConfiguration
     public static void ConfigureApiDIRepositories(this IServiceCollection services)
     {
         services.AddTransient<IProjectsRepository, ProjectsRepository>();
+        services.AddTransient<IProjectTasksRepository, ProjectTasksRepository>();
     }
 
     public static void ConfigureApiDIServices(this IServiceCollection services)
@@ -44,6 +46,11 @@ public static class DependenciesConfiguration
 
         services.AddTransient<EmployeeAuthenticationHandler>();
         services.AddTransient<EmployeeAuthorizationHandler>();
+
+        services.AddTransient<CreateProjectTaskHandler>();
+        services.AddTransient<DeleteProjectTaskHandler>();
+        services.AddTransient<GetProjectTasksHandler>();
+        services.AddTransient<UpdateProjectTaskHandler>();
 
         services.AddTransient<IJwtGenerationService, JwtGenerationService>();
     }

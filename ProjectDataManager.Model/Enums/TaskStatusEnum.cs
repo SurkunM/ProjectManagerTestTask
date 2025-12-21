@@ -1,6 +1,6 @@
 ﻿namespace ProjectDataManager.Model.Enums;
 
-public enum TaskStatus
+public enum TaskStatusEnum
 {
     ToDo = 0,
     InProgress = 1,

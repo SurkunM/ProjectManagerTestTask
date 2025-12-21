@@ -5,17 +5,18 @@ namespace ProjectDataManager.Contracts.MappingExtensions;
 
 public static class ProjectTaskMappingExtensions
 {
-    public static ProjectTask ToModel(this ProjectTaskCreateUpdateDto createUpdateDto, Project project, Employee executor, Employee author)
+    public static ProjectTask ToModel(this ProjectTaskCreateUpdateDto taskUpdateDto, Project project, Employee executor, Employee author)
     {
         return new ProjectTask
         {
+            Id = taskUpdateDto.Id,
             Author = author,
-            Name = createUpdateDto.Name,
+            Name = taskUpdateDto.Name,
             Project = project,
             Executor = executor,
-            Status = createUpdateDto.Status,
-            Comment = createUpdateDto.Comment,
-            Priority = createUpdateDto.Priority
+            Status = taskUpdateDto.Status,
+            Comment = taskUpdateDto.Comment,
+            Priority = taskUpdateDto.Priority
         };
     }
 }

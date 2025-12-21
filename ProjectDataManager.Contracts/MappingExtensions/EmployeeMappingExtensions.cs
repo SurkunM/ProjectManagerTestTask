@@ -27,7 +27,18 @@ public static class EmployeeMappingExtensions
             FirstName = employee.FirstName,
             LastName = employee.LastName,
             MiddleName = employee.MiddleName,
-            Email = employee.Email
+            Email = employee.Email!
+        };
+    }
+
+    public static EmployeeResponseData ToUserDataResponse(this Employee employee, IList<string> roles)
+    {
+        return new EmployeeResponseData
+        {
+            UserId = employee.Id,
+            UserName = $"{employee.LastName} {employee.FirstName[0]}. " +
+                $"{(employee.MiddleName is null ? " " : employee.MiddleName[0].ToString() + ".")}",
+            Roles = roles
         };
     }
 }
