@@ -2,6 +2,7 @@
 using ProjectDataManager.Contracts.Dto.ProjectDto;
 using ProjectDataManager.Contracts.Exceptions;
 using ProjectDataManager.Contracts.IRepositories;
+using ProjectDataManager.Contracts.IServices;
 using ProjectDataManager.Contracts.IUnitOfWork;
 using ProjectDataManager.Contracts.MappingExtensions;
 
@@ -22,20 +23,20 @@ public class CreateProjectHandler
     public async Task HandleAsync(ProjectCreateUpdateDto projectDto)
     {
         var projectsRepository = _unitOfWork.GetRepository<IProjectsRepository>();
-        var employeeRepository = _unitOfWork.GetRepository<IEmployeesRepository>();
+        var employeeService = _unitOfWork.GetService<IEmployeeService>();
 
         try
         {
             _unitOfWork.BeginTransaction();
 
-            var manager = await employeeRepository.FindEmployeeByIdAsync(projectDto.ProjectManagerId) ?? throw new NotFoundException("Project Manager not found or already deleted");
+            var manager = await employeeService.FindEmployeeByIdAsync(projectDto.ProjectManagerId) ?? throw new NotFoundException("Project Manager not found or already deleted");
             var projectModel = projectDto.ToModel(manager);
 
             await projectsRepository.CreateAsync(projectModel);
 
             if (projectDto.ProjectEmployeesId.Length != 0)
             {
-                var employees = await employeeRepository.FindEmployeesByIdAsync(projectDto.ProjectEmployeesId);
+                var employees = await employeeService.FindEmployeesByIdAsync(projectDto.ProjectEmployeesId);
 
                 if (employees.Count > 0)
                 {

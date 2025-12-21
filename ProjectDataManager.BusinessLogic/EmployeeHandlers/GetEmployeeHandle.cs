@@ -16,14 +16,14 @@ public class GetEmployeeHandle
 
     public Task<List<EmployeeResponseDto>> HandleAsync(string term)
     {
-        var employeeService = _unitOfWork.GetRepository<IEmployeeService>();
+        var employeeService = _unitOfWork.GetService<IEmployeeService>();
 
         return employeeService.GetEmployeesAsync(term);
     }
 
     public Task<List<EmployeeForSelectDto>> GetForSelectHandleAsync(string term)
     {
-        var employeeService = _unitOfWork.GetRepository<IEmployeeService>();
+        var employeeService = _unitOfWork.GetService<IEmployeeService>();
 
         return employeeService.GetEmployeesForSelectAsync(term);
     }

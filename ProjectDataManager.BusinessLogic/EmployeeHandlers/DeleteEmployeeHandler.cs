@@ -20,7 +20,7 @@ public class DeleteEmployeeHandler
 
     public async Task HandleAsync(int id)
     {
-        var employeeService = _unitOfWork.GetRepository<IEmployeeService>();
+        var employeeService = _unitOfWork.GetService<IEmployeeService>();
 
         var employee = await employeeService.FindEmployeeByIdAsync(id) ?? throw new NotFoundException("Delete failed. Employee not found");
 

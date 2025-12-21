@@ -2,6 +2,7 @@
 using ProjectDataManager.Contracts.Dto.ProjectTaskDto;
 using ProjectDataManager.Contracts.Exceptions;
 using ProjectDataManager.Contracts.IRepositories;
+using ProjectDataManager.Contracts.IServices;
 using ProjectDataManager.Contracts.IUnitOfWork;
 using ProjectDataManager.Contracts.MappingExtensions;
 
@@ -24,13 +25,13 @@ public class UpdateProjectTaskHandler
     {
         var projectTasksRepository = _unitOfWork.GetRepository<IProjectTasksRepository>();
         var projectRepository = _unitOfWork.GetRepository<IProjectsRepository>();
-        var employeeRepository = _unitOfWork.GetRepository<IEmployeesRepository>();
+        var employeeService = _unitOfWork.GetService<IEmployeeService>();
 
         try
         {
             var project = await projectRepository.FindProjectByIdAsync(requestDto.ProjectId) ?? throw new NotFoundException("Project not found");
-            var author = await employeeRepository.FindEmployeeByIdAsync(requestDto.AuthorId) ?? throw new NotFoundException("Author not found");
-            var executor = await employeeRepository.FindEmployeeByIdAsync(requestDto.ExecutorId) ?? throw new NotFoundException("Executor not found");
+            var author = await employeeService.FindEmployeeByIdAsync(requestDto.AuthorId) ?? throw new NotFoundException("Author not found");
+            var executor = await employeeService.FindEmployeeByIdAsync(requestDto.ExecutorId) ?? throw new NotFoundException("Executor not found");
 
             projectTasksRepository.Update(requestDto.ToModel(project, executor, author));
 

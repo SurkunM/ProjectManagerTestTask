@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using ProjectDataManager.Contracts.Dto.EmployeeDto.Requests;
 using ProjectDataManager.Contracts.Exceptions;
 using ProjectDataManager.Contracts.IRepositories;
+using ProjectDataManager.Contracts.IServices;
 using ProjectDataManager.Contracts.IUnitOfWork;
 using ProjectDataManager.Model;
 
@@ -30,13 +31,13 @@ public class EmployeeAuthorizationHandler
             throw new InvalidRoleException(employeeRegisterRequest.Role);
         }
 
-        var employeeRepository = _unitOfWork.GetRepository<IEmployeesRepository>();
+        var employeeService = _unitOfWork.GetRepository<IEmployeeService>();
 
         try
         {
             _unitOfWork.BeginTransaction();
 
-            var employee = await employeeRepository.FindEmployeeByIdAsync(employeeRegisterRequest.EmployeeId) ?? throw new NotFoundException("Employee not found");
+            var employee = await employeeService.FindEmployeeByIdAsync(employeeRegisterRequest.EmployeeId) ?? throw new NotFoundException("Employee not found");
 
             var result = await _userManager.CreateAsync(employee, employeeRegisterRequest.Password);
 

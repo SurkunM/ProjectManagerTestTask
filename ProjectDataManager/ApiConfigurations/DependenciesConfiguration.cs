@@ -17,7 +17,6 @@ public static class DependenciesConfiguration
 {
     public static void ConfigureApiDIRepositories(this IServiceCollection services)
     {
-        services.AddTransient<IEmployeesRepository, EmployeesRepository>();
         services.AddTransient<IProjectsRepository, ProjectsRepository>();
     }
 

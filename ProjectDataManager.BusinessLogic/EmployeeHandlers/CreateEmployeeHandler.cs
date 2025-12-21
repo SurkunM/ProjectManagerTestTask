@@ -17,7 +17,7 @@ public class CreateEmployeeHandler
 
     public async Task HandleAsync(EmployeeCreateRequest requestDto)
     {
-        var employeeService = _unitOfWork.GetRepository<IEmployeeService>();
+        var employeeService = _unitOfWork.GetService<IEmployeeService>();
 
         var result = await employeeService.CreateAsyncAndSaveChanges(requestDto.ToModel(), requestDto.Password);
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using ProjectDataManager.Contracts.Exceptions;
 using ProjectDataManager.Contracts.IRepositories;
+using ProjectDataManager.Contracts.IServices;
 using ProjectDataManager.Contracts.IUnitOfWork;
 
 namespace ProjectDataManager.BusinessLogic.ProjectHandlers;
@@ -20,14 +21,14 @@ public class AddEmployeeToProjectHandler
     public async Task HandleAsync(int projectId, int[] employeesId)
     {
         var projectsRepository = _unitOfWork.GetRepository<IProjectsRepository>();
-        var employeesRepository = _unitOfWork.GetRepository<IEmployeesRepository>();
+        var employeeService = _unitOfWork.GetService<IEmployeeService>();
 
         try
         {
             _unitOfWork.BeginTransaction();
 
             var project = await projectsRepository.FindProjectByIdAsync(projectId) ?? throw new NotFoundException("Project not found");
-            var employees = await employeesRepository.FindEmployeesByIdAsync(employeesId);
+            var employees = await employeeService.FindEmployeesByIdAsync(employeesId);
 
             if (employees.Count == 0)
             {
