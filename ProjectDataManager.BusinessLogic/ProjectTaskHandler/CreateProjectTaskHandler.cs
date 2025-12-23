@@ -20,7 +20,7 @@ public class CreateProjectTaskHandler
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public async Task<bool> HandleAsync(ProjectTaskCreateUpdateDto requestDto)
+    public async Task HandleAsync(ProjectTaskCreateUpdateDto requestDto)
     {
         var projectTasksRepository = _unitOfWork.GetRepository<IProjectTasksRepository>();
         var projectRepository = _unitOfWork.GetRepository<IProjectsRepository>();
@@ -37,8 +37,6 @@ public class CreateProjectTaskHandler
             await projectTasksRepository.CreateAsync(requestDto.ToModel(project, executor, author));
 
             await _unitOfWork.SaveAsync();
-
-            return true;
         }
         catch (Exception)
         {

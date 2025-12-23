@@ -1,6 +1,6 @@
 ﻿namespace ProjectDataManager.Contracts.Dto.EmployeeDto.Responses;
 
-public class ResponseData
+public class EmployeeResponseData
 {
     public int UserId { get; set; }
 

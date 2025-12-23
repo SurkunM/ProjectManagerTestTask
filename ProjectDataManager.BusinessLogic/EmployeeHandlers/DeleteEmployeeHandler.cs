@@ -28,7 +28,9 @@ public class DeleteEmployeeHandler
 
         if (!result.Succeeded)
         {
-            throw new OperationFailedException($"Delete failed. {result.Errors}");
+            var errors = string.Join("; ", result.Errors.Select(e => e.Description));
+
+            throw new OperationFailedException($"Delete failed. {errors}");
         }
     }
 }

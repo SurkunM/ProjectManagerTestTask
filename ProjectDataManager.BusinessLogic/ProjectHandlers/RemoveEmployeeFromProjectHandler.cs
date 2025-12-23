@@ -17,7 +17,7 @@ public class RemoveEmployeeFromProjectHandler
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    public async Task<bool> HandleAsync(int projectId, int[] employeesId)
+    public async Task HandleAsync(int projectId, int[] employeesId)
     {
         var projectsRepository = _unitOfWork.GetRepository<IProjectsRepository>();
 
@@ -35,8 +35,6 @@ public class RemoveEmployeeFromProjectHandler
             projectsRepository.RemoveEmployeesFromProject(projectEmployee);
 
             await _unitOfWork.SaveAsync();
-
-            return true;
         }
         catch (Exception ex)
         {

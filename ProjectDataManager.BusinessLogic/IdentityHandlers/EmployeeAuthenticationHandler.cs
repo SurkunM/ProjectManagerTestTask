@@ -3,6 +3,7 @@ using ProjectDataManager.Contracts.Dto.EmployeeDto.Requests;
 using ProjectDataManager.Contracts.Dto.EmployeeDto.Responses;
 using ProjectDataManager.Contracts.Exceptions;
 using ProjectDataManager.Contracts.IServices;
+using ProjectDataManager.Contracts.MappingExtensions;
 using ProjectDataManager.Model;
 
 namespace ProjectDataManager.BusinessLogic.IdentityHandlers;
@@ -37,18 +38,10 @@ public class EmployeeAuthenticationHandler
 
         var roles = await _userManager.GetRolesAsync(employee);
 
-        var responseData = new ResponseData//Перенести тот метод в репозиторий Employee
-        {
-            UserId = employee.Id,
-            UserName = $"{employee.LastName} {employee.FirstName[0]}. " +
-                $"{(employee.MiddleName is null ? " " : employee.MiddleName[0].ToString() + ".")}",
-            Roles = roles
-        };
-
         return new EmployeeLoginResponse
         {
             Token = token,
-            UserData = responseData
+            UserData = employee.ToUserDataResponse(roles)
         };
     }
 
