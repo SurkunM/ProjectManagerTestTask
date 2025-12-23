@@ -2,7 +2,9 @@
 using Microsoft.Extensions.Logging;
 using Moq;
 using ProjectDataManager.BusinessLogic.ProjectHandlers;
+using ProjectDataManager.Contracts.Exceptions;
 using ProjectDataManager.Contracts.IRepositories;
+using ProjectDataManager.Contracts.IServices;
 using ProjectDataManager.Contracts.IUnitOfWork;
 using ProjectDataManager.Model;
 
@@ -40,29 +42,27 @@ public class AddEmployeeToProjectHandlerTests
         };
 
         var projectsRepositoryMock = new Mock<IProjectsRepository>();
-        var employeesRepositoryMock = new Mock<IEmployeesRepository>();
+        var employeesServiceMock = new Mock<IEmployeeService>();
 
         projectsRepositoryMock
             .Setup(r => r.FindProjectByIdAsync(_projectId))
             .ReturnsAsync(project);
 
-        employeesRepositoryMock
+        employeesServiceMock
             .Setup(r => r.FindEmployeesByIdAsync(_ids))
             .ReturnsAsync(employees);
 
         _uowMock
-            .Setup(uow => uow.GetRepository<IEmployeesRepository>())
-            .Returns(employeesRepositoryMock.Object);
+            .Setup(uow => uow.GetService<IEmployeeService>())
+            .Returns(employeesServiceMock.Object);
 
         _uowMock
             .Setup(uow => uow.GetRepository<IProjectsRepository>())
             .Returns(projectsRepositoryMock.Object);
 
-         await _addEmployeeToProjectHandler.HandleAsync(_projectId, _ids);
+        await _addEmployeeToProjectHandler.HandleAsync(_projectId, _ids);
 
-        //Assert.True();
-
-        employeesRepositoryMock.Verify(r => r.FindEmployeesByIdAsync(_ids), Times.Once);
+        employeesServiceMock.Verify(r => r.FindEmployeesByIdAsync(_ids), Times.Once);
 
         projectsRepositoryMock.Verify(r => r.FindProjectByIdAsync(_projectId), Times.Once);
         projectsRepositoryMock.Verify(r => r.AddEmployeesToProject(project, employees), Times.Once);
@@ -84,7 +84,7 @@ public class AddEmployeeToProjectHandlerTests
         };
 
         var projectsRepositoryMock = new Mock<IProjectsRepository>();
-        var employeesRepositoryMock = new Mock<IEmployeesRepository>();
+        var employeesServiceMock = new Mock<IEmployeeService>();
 
         projectsRepositoryMock
             .Setup(r => r.FindProjectByIdAsync(_projectId))
@@ -94,13 +94,13 @@ public class AddEmployeeToProjectHandlerTests
             .Setup(r => r.AddEmployeesToProject(project, employees))
             .Throws(new DbUpdateException());
 
-        employeesRepositoryMock
+        employeesServiceMock
             .Setup(r => r.FindEmployeesByIdAsync(_ids))
             .ReturnsAsync(employees);
 
         _uowMock
-            .Setup(uow => uow.GetRepository<IEmployeesRepository>())
-            .Returns(employeesRepositoryMock.Object);
+            .Setup(uow => uow.GetService<IEmployeeService>())
+            .Returns(employeesServiceMock.Object);
 
         _uowMock
             .Setup(uow => uow.GetRepository<IProjectsRepository>())
@@ -126,36 +126,35 @@ public class AddEmployeeToProjectHandlerTests
         };
 
         var projectsRepositoryMock = new Mock<IProjectsRepository>();
-        var employeesRepositoryMock = new Mock<IEmployeesRepository>();
+        var employeesServiceMock = new Mock<IEmployeeService>();
 
         projectsRepositoryMock
             .Setup(r => r.FindProjectByIdAsync(_projectId))
             .ReturnsAsync(project);
 
-        employeesRepositoryMock
+        employeesServiceMock
             .Setup(r => r.FindEmployeesByIdAsync(_ids))
             .ReturnsAsync(new List<Employee>());
 
         _uowMock
-            .Setup(uow => uow.GetRepository<IEmployeesRepository>())
-            .Returns(employeesRepositoryMock.Object);
+            .Setup(uow => uow.GetService<IEmployeeService>())
+            .Returns(employeesServiceMock.Object);
 
         _uowMock
             .Setup(uow => uow.GetRepository<IProjectsRepository>())
             .Returns(projectsRepositoryMock.Object);
 
-        //var result = await _addEmployeeToProjectHandler.HandleAsync(_projectId, _ids);
+        await Assert.ThrowsAsync<NotFoundException>(() => _addEmployeeToProjectHandler.HandleAsync(_projectId, _ids));
 
-       // Assert.False(result);
+        projectsRepositoryMock.Verify(pr => pr.AddEmployeesToProject(It.IsAny<Project>(), It.IsAny<List<Employee>>()), Times.Never);
 
         _uowMock.Verify(u => u.SaveAsync(), Times.Never);
-
         _uowMock.Verify(u => u.BeginTransaction(), Times.Once);
         _uowMock.Verify(u => u.RollbackTransaction(), Times.Once);
     }
 
     [Fact]
-    public async Task Should_RollbackTransaction_When_FindProjectByIdAsync_ReturnNull()
+    public async Task Should_ThrowNotFoundException_When_Project_FindByIdAsync_ReturnNull()
     {
         var employees = new List<Employee>
         {
@@ -164,30 +163,25 @@ public class AddEmployeeToProjectHandlerTests
         };
 
         var projectsRepositoryMock = new Mock<IProjectsRepository>();
-        var employeesRepositoryMock = new Mock<IEmployeesRepository>();
+        var employeesServiceMock = new Mock<IEmployeeService>();
 
         projectsRepositoryMock
             .Setup(r => r.FindProjectByIdAsync(_projectId))
             .ReturnsAsync(default(Project));
 
-        employeesRepositoryMock
-            .Setup(r => r.FindEmployeesByIdAsync(_ids))
-            .ReturnsAsync(employees);
-
         _uowMock
-            .Setup(uow => uow.GetRepository<IEmployeesRepository>())
-            .Returns(employeesRepositoryMock.Object);
+            .Setup(uow => uow.GetService<IEmployeeService>())
+            .Returns(employeesServiceMock.Object);
 
         _uowMock
             .Setup(uow => uow.GetRepository<IProjectsRepository>())
             .Returns(projectsRepositoryMock.Object);
 
-        //var result = await _addEmployeeToProjectHandler.HandleAsync(_projectId, _ids);
+        await Assert.ThrowsAsync<NotFoundException>(() => _addEmployeeToProjectHandler.HandleAsync(_projectId, _ids));
 
-        //Assert.False(result);
+        projectsRepositoryMock.Verify(pr => pr.AddEmployeesToProject(It.IsAny<Project>(), It.IsAny<List<Employee>>()), Times.Never);
 
         _uowMock.Verify(u => u.SaveAsync(), Times.Never);
-
         _uowMock.Verify(u => u.BeginTransaction(), Times.Once);
         _uowMock.Verify(u => u.RollbackTransaction(), Times.Once);
     }

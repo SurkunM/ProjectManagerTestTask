@@ -3,7 +3,9 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using ProjectDataManager.BusinessLogic.ProjectHandlers;
 using ProjectDataManager.Contracts.Dto.ProjectDto;
+using ProjectDataManager.Contracts.Exceptions;
 using ProjectDataManager.Contracts.IRepositories;
+using ProjectDataManager.Contracts.IServices;
 using ProjectDataManager.Contracts.IUnitOfWork;
 using ProjectDataManager.Model;
 
@@ -34,25 +36,23 @@ public class UpdateProjectHandlerTests
         var dto = Mock.Of<ProjectCreateUpdateDto>(pDto => pDto.ProjectManagerId == id);
 
         var projectsRepositoryMock = new Mock<IProjectsRepository>();
-        var employeesRepositoryMock = new Mock<IEmployeesRepository>();
+        var employeesServiceMock = new Mock<IEmployeeService>();
 
-        employeesRepositoryMock
+        employeesServiceMock
             .Setup(r => r.FindEmployeeByIdAsync(dto.ProjectManagerId))
             .ReturnsAsync(manager);
 
         _uowMock
-            .Setup(uow => uow.GetRepository<IEmployeesRepository>())
-            .Returns(employeesRepositoryMock.Object);
+            .Setup(uow => uow.GetService<IEmployeeService>())
+            .Returns(employeesServiceMock.Object);
 
         _uowMock
             .Setup(uow => uow.GetRepository<IProjectsRepository>())
             .Returns(projectsRepositoryMock.Object);
 
-        //var result = await _updateProjectHandler.HandleAsync(dto);
+        await _updateProjectHandler.HandleAsync(dto);
 
-        //Assert.True(result);
-
-        employeesRepositoryMock.Verify(r => r.FindEmployeeByIdAsync(id), Times.Once);
+        employeesServiceMock.Verify(r => r.FindEmployeeByIdAsync(id), Times.Once);
         projectsRepositoryMock.Verify(r => r.Update(It.IsAny<Project>()), Times.Once);
 
         _uowMock.Verify(uow => uow.BeginTransaction(), Times.Once);
@@ -67,23 +67,21 @@ public class UpdateProjectHandlerTests
         var dto = Mock.Of<ProjectCreateUpdateDto>(pDto => pDto.ProjectManagerId == 1);
 
         var projectsRepositoryMock = new Mock<IProjectsRepository>();
-        var employeesRepositoryMock = new Mock<IEmployeesRepository>();
+        var employeesServiceMock = new Mock<IEmployeeService>();
 
-        employeesRepositoryMock
+        employeesServiceMock
             .Setup(r => r.FindEmployeeByIdAsync(dto.ProjectManagerId))
             .ReturnsAsync(default(Employee));
 
         _uowMock
-            .Setup(uow => uow.GetRepository<IEmployeesRepository>())
-            .Returns(employeesRepositoryMock.Object);
+            .Setup(uow => uow.GetService<IEmployeeService>())
+            .Returns(employeesServiceMock.Object);
 
         _uowMock
             .Setup(uow => uow.GetRepository<IProjectsRepository>())
             .Returns(projectsRepositoryMock.Object);
 
-        //var result = await _updateProjectHandler.HandleAsync(dto);
-
-        //Assert.False(result);
+        await Assert.ThrowsAsync<NotFoundException>(() => _updateProjectHandler.HandleAsync(dto));
 
         _uowMock.Verify(uow => uow.BeginTransaction(), Times.Once);
         _uowMock.Verify(uow => uow.RollbackTransaction(), Times.Once);
@@ -99,9 +97,9 @@ public class UpdateProjectHandlerTests
         var dto = Mock.Of<ProjectCreateUpdateDto>(pDto => pDto.ProjectManagerId == 1);
 
         var projectsRepositoryMock = new Mock<IProjectsRepository>();
-        var employeesRepositoryMock = new Mock<IEmployeesRepository>();
+        var employeesServiceMock = new Mock<IEmployeeService>();
 
-        employeesRepositoryMock
+        employeesServiceMock
             .Setup(r => r.FindEmployeeByIdAsync(dto.ProjectManagerId))
             .ReturnsAsync(manager);
 
@@ -109,8 +107,8 @@ public class UpdateProjectHandlerTests
             .Setup(r => r.Update(It.IsAny<Project>())).Throws(new DbUpdateException());
 
         _uowMock
-            .Setup(uow => uow.GetRepository<IEmployeesRepository>())
-            .Returns(employeesRepositoryMock.Object);
+            .Setup(uow => uow.GetService<IEmployeeService>())
+            .Returns(employeesServiceMock.Object);
 
         _uowMock
             .Setup(uow => uow.GetRepository<IProjectsRepository>())

@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 using Moq;
 using ProjectDataManager.BusinessLogic.EmployeeHandlers;
-using ProjectDataManager.Contracts.IRepositories;
+using ProjectDataManager.Contracts.Exceptions;
+using ProjectDataManager.Contracts.IServices;
 using ProjectDataManager.Contracts.IUnitOfWork;
 using ProjectDataManager.Model;
 
@@ -30,79 +31,70 @@ public class DeleteEmployeeHandlerTests
         int id = 1;
         var employee = Mock.Of<Employee>(e => e.Id == id);
 
-        var employeesRepositoryMock = new Mock<IEmployeesRepository>();
+        var employeesServiceMock = new Mock<IEmployeeService>();
 
-        employeesRepositoryMock
-            .Setup(r => r.FindEmployeeByIdAsync(id))
+        employeesServiceMock
+            .Setup(es => es.FindEmployeeByIdAsync(id))
             .ReturnsAsync(employee);
 
+        employeesServiceMock
+            .Setup(es => es.DeleteAndSaveChanges(It.IsAny<Employee>()))
+            .ReturnsAsync(IdentityResult.Success);
+
         _uowMock
-            .Setup(uow => uow.GetRepository<IEmployeesRepository>())
-            .Returns(employeesRepositoryMock.Object);
+            .Setup(uow => uow.GetService<IEmployeeService>())
+            .Returns(employeesServiceMock.Object);
 
-        var result = await _deleteEmployeeHandler.HandleAsync(id);
+        await _deleteEmployeeHandler.HandleAsync(id);
 
-        Assert.True(result);
-
-        employeesRepositoryMock.Verify(r => r.Delete(employee), Times.Once);
-
-        _uowMock.Verify(uow => uow.BeginTransaction(), Times.Once);
-        _uowMock.Verify(uow => uow.SaveAsync(), Times.Once);
-
-        _uowMock.Verify(uow => uow.RollbackTransaction(), Times.Never);
+        employeesServiceMock.Verify(r => r.FindEmployeeByIdAsync(id), Times.Once);
+        employeesServiceMock.Verify(r => r.DeleteAndSaveChanges(employee), Times.Once);
     }
 
     [Fact]
-    public async Task Should_RollbackTransaction_When_FindEmployeeByIdAsync_ReturnNull()
+    public async Task Should_ThrowNotFoundException_When_FindEmployeeByIdAsync_ReturnNull()
     {
         int id = 1;
 
-        var employeesRepositoryMock = new Mock<IEmployeesRepository>();
+        var employeesServiceMock = new Mock<IEmployeeService>();
 
-        employeesRepositoryMock
+        employeesServiceMock
             .Setup(r => r.FindEmployeeByIdAsync(id))
             .ReturnsAsync(default(Employee));
 
         _uowMock
-            .Setup(uow => uow.GetRepository<IEmployeesRepository>())
-            .Returns(employeesRepositoryMock.Object);
+            .Setup(uow => uow.GetService<IEmployeeService>())
+            .Returns(employeesServiceMock.Object);
 
-        var result = await _deleteEmployeeHandler.HandleAsync(id);
+        await Assert.ThrowsAsync<NotFoundException>(() => _deleteEmployeeHandler.HandleAsync(id));
 
-        Assert.False(result);
-
-        _uowMock.Verify(u => u.BeginTransaction(), Times.Once);
-        _uowMock.Verify(u => u.RollbackTransaction(), Times.Once);
-
-        employeesRepositoryMock.Verify(r => r.Delete(Mock.Of<Employee>()), Times.Never);
-        _uowMock.Verify(u => u.SaveAsync(), Times.Never);
+        employeesServiceMock.Verify(es => es.FindEmployeeByIdAsync(id), Times.Once);
+        employeesServiceMock.Verify(es => es.DeleteAndSaveChanges(It.IsAny<Employee>()), Times.Never);
     }
 
     [Fact]
-    public async Task Should_RollbackTransaction_When_ThrowsDbUpdateException()
+    public async Task Should_ThrowsOperationFailedException()
     {
         int id = 1;
         var employee = Mock.Of<Employee>(e => e.Id == id);
 
-        var employeesRepositoryMock = new Mock<IEmployeesRepository>();
+        var employeesServiceMock = new Mock<IEmployeeService>();
 
-        employeesRepositoryMock
+        employeesServiceMock
             .Setup(r => r.FindEmployeeByIdAsync(id))
             .ReturnsAsync(employee);
 
-        employeesRepositoryMock
-            .Setup(r => r.Delete(employee))
-            .Throws(new DbUpdateException());
+        employeesServiceMock
+            .Setup(r => r.DeleteAndSaveChanges(employee))
+            .ReturnsAsync(IdentityResult.Failed());
 
         _uowMock
-            .Setup(uow => uow.GetRepository<IEmployeesRepository>())
-            .Returns(employeesRepositoryMock.Object);
+            .Setup(uow => uow.GetService<IEmployeeService>())
+            .Returns(employeesServiceMock.Object);
 
-        await Assert.ThrowsAsync<DbUpdateException>(() => _deleteEmployeeHandler.HandleAsync(id));
+        await Assert.ThrowsAsync<OperationFailedException>(() => _deleteEmployeeHandler.HandleAsync(id));
 
-        _uowMock.Verify(uow => uow.BeginTransaction(), Times.Once);
-        _uowMock.Verify(uow => uow.RollbackTransaction(), Times.Once);
-
-        _uowMock.Verify(uow => uow.SaveAsync(), Times.Never);
+        employeesServiceMock.Verify(es => es.FindEmployeeByIdAsync(id), Times.Once);
+        employeesServiceMock.Verify(es => es.DeleteAndSaveChanges(It.IsAny<Employee>()), Times.Once);
     }
 }

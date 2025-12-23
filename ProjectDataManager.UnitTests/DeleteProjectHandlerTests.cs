@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Moq;
 using ProjectDataManager.BusinessLogic.ProjectHandlers;
+using ProjectDataManager.Contracts.Exceptions;
 using ProjectDataManager.Contracts.IRepositories;
 using ProjectDataManager.Contracts.IUnitOfWork;
 using ProjectDataManager.Model;
@@ -40,9 +41,7 @@ public class DeleteProjectHandlerTests
             .Setup(uow => uow.GetRepository<IProjectsRepository>())
             .Returns(projectsRepositoryMock.Object);
 
-        //var result = await _deleteProjectHandler.HandleAsync(id);
-
-        //Assert.True(result);
+        await _deleteProjectHandler.HandleAsync(id);
 
         projectsRepositoryMock.Verify(r => r.Delete(project), Times.Once);
 
@@ -68,9 +67,7 @@ public class DeleteProjectHandlerTests
             .Setup(uow => uow.GetRepository<IProjectsRepository>())
             .Returns(projectsRepositoryMock.Object);
 
-        //var result = await _deleteProjectHandler.HandleAsync(id);
-
-        //Assert.False(result);
+        await Assert.ThrowsAsync<NotFoundException>(() => _deleteProjectHandler.HandleAsync(id));
 
         _uowMock.Verify(uow => uow.BeginTransaction(), Times.Once);
         _uowMock.Verify(uow => uow.RollbackTransaction(), Times.Once);

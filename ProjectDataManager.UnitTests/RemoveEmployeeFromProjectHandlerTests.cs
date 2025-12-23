@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using ProjectDataManager.BusinessLogic.ProjectHandlers;
+using ProjectDataManager.Contracts.Exceptions;
 using ProjectDataManager.Contracts.IRepositories;
 using ProjectDataManager.Contracts.IUnitOfWork;
 using ProjectDataManager.Model;
@@ -35,7 +36,6 @@ public class RemoveEmployeeFromProjectHandlerTests
         {
             Mock.Of<ProjectEmployee>(pe =>
                 pe.Id == 1 &&
-
                 pe.EmployeeId == _ids[0] &&
                 pe.Employee == Mock.Of<Employee>()&&
 
@@ -44,7 +44,6 @@ public class RemoveEmployeeFromProjectHandlerTests
             ),
             Mock.Of<ProjectEmployee>(pe =>
                 pe.Id == 2 &&
-
                 pe.EmployeeId == _ids[1] &&
                 pe.Employee == Mock.Of<Employee>()&&
 
@@ -63,9 +62,7 @@ public class RemoveEmployeeFromProjectHandlerTests
             .Setup(uow => uow.GetRepository<IProjectsRepository>())
             .Returns(projectsRepositoryMock.Object);
 
-        var result = await _removeEmployeeFromProjectHandler.HandleAsync(_projectId, _ids);
-
-        Assert.True(result);
+        await _removeEmployeeFromProjectHandler.HandleAsync(_projectId, _ids);
 
         projectsRepositoryMock.Verify(r => r.FindProjectEmployeeByIdAsync(_projectId, _ids), Times.Once);
         projectsRepositoryMock.Verify(r => r.RemoveEmployeesFromProject(projectEmployees), Times.Once);
@@ -110,7 +107,8 @@ public class RemoveEmployeeFromProjectHandlerTests
             .Throws(new DbUpdateException());
 
         _uowMock
-            .Setup(uow => uow.GetRepository<IProjectsRepository>()).Returns(projectsRepositoryMock.Object);
+            .Setup(uow => uow.GetRepository<IProjectsRepository>())
+            .Returns(projectsRepositoryMock.Object);
 
         await Assert.ThrowsAsync<DbUpdateException>(() => _removeEmployeeFromProjectHandler.HandleAsync(_projectId, _ids));
 
@@ -133,9 +131,7 @@ public class RemoveEmployeeFromProjectHandlerTests
             .Setup(uow => uow.GetRepository<IProjectsRepository>())
             .Returns(projectsRepositoryMock.Object);
 
-        var result = await _removeEmployeeFromProjectHandler.HandleAsync(_projectId, _ids);
-
-        Assert.False(result);
+        await Assert.ThrowsAsync<NotFoundException>(() => _removeEmployeeFromProjectHandler.HandleAsync(_projectId, _ids));
 
         _uowMock.Verify(u => u.SaveAsync(), Times.Never);
 
