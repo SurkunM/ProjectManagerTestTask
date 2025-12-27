@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using ProjectDataManager.Contracts.IServices;
 using ProjectDataManager.DataAccess;
 using ProjectDataManager.Model;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
@@ -32,6 +34,22 @@ public static class JwtBearerConfiguration
                 ValidateLifetime = true,
 
                 ClockSkew = TimeSpan.FromMinutes(5)
+            };
+
+            options.Events = new JwtBearerEvents
+            {
+                OnTokenValidated = context =>
+                {
+                    var blacklistService = context.HttpContext.RequestServices.GetRequiredService<IJwtBlacklistService>();
+                    var jtiClaim = context.Principal?.FindFirst(JwtRegisteredClaimNames.Jti);
+
+                    if (jtiClaim != null && blacklistService.IsTokenRevoked(jtiClaim.Value))
+                    {
+                        context.Fail("Token has been revoked");
+                    }
+
+                    return Task.CompletedTask;
+                }
             };
         });
     }

@@ -25,6 +25,8 @@ public class Program
         builder.Services.ConfigureApiDIRepositories();
         builder.Services.ConfigureApiDIHandlers();
 
+        builder.Services.AddMemoryCache();
+
         var app = builder.Build();
 
         if (!app.Environment.IsDevelopment())

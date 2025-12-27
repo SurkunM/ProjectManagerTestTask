@@ -25,6 +25,8 @@ public static class DependenciesConfiguration
     public static void ConfigureApiDIServices(this IServiceCollection services)
     {
         services.AddScoped<DbContext>(provider => provider.GetRequiredService<ProjectDataManagerDbContext>());
+        services.AddScoped<IJwtBlacklistService, JwtBlacklistService>();
+
         services.AddTransient<IUnitOfWork, UnitOfWork>();
         services.AddTransient<IEmployeeService, EmployeeService>();
     }

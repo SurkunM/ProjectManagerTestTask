@@ -44,6 +44,7 @@ public class JwtGenerationService : IJwtGenerationService
     {
         var claims = new List<Claim>
         {
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new(ClaimTypes.NameIdentifier, employee.Id.ToString()),
             new(ClaimTypes.Name, employee.UserName ?? string.Empty),
             new("ManagerId", employee.ManagerId.ToString() ?? string.Empty)
