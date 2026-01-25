@@ -14,20 +14,17 @@ public class EmployeeAuthenticationHandler
 {
     private readonly UserManager<Employee> _userManager;
 
-    private readonly SignInManager<Employee> _signInManager;
-
     private readonly IJwtGenerationService _jwtGenerationService;
 
     private readonly IJwtBlacklistService _jwtBlacklistService;
 
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public EmployeeAuthenticationHandler(UserManager<Employee> userManager, SignInManager<Employee> signInManager,
+    public EmployeeAuthenticationHandler(UserManager<Employee> userManager,
         IJwtGenerationService jwtGenerationService, IJwtBlacklistService blacklistService, IHttpContextAccessor httpContextAccessor)
     {
         _jwtGenerationService = jwtGenerationService ?? throw new ArgumentNullException(nameof(jwtGenerationService));
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-        _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         _jwtBlacklistService = blacklistService ?? throw new ArgumentNullException(nameof(blacklistService));
         _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
     }
